@@ -1,117 +1,166 @@
-import Image from "next/image";
+"use client";
+import React, { useEffect, useState } from "react";
+import { auth, provider, db } from "@/lib/firebase";
+import { signInWithPopup, signOut, User } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import Link from "next/link";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBnpEzd6fJ6uEIeDcJimbvJPwBbZlA5f3c",
-  authDomain: "project-web2024-fbe30.firebaseapp.com",
-  projectId: "project-web2024-fbe30",
-  storageBucket: "project-web2024-fbe30.firebasestorage.app",
-  messagingSenderId: "127320570395",
-  appId: "1:127320570395:web:71def823b01021587996be",
-  measurementId: "G-VEGVYKFW8Y"
-};
+interface UserProfile {
+  name: string;
+  photo: string;
+}
 
-// เริ่มต้น Firebase
-firebase.initializeApp(firebaseConfig);
-
-// ใช้งาน Firestore
-const db = firebase.firestore();
+interface Classroom {
+  id: string;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+  const [loading, setLoading] = useState(true);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        await fetchUserData(currentUser);
+      } else {
+        setUser(null);
+        setUserProfile(null);
+        setClassrooms([]);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const fetchUserData = async (currentUser: User) => {
+    if (!currentUser) return;
+
+    const userRef = doc(db, "users", currentUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      setUserProfile({
+        name: data.name || "Unknown User",
+        photo: data.photo || "https://via.placeholder.com/100",
+      });
+
+      // ดึงรายชื่อห้องเรียนจาก users/{uid}/classroom
+      const classList = Object.keys(data.classroom || {}).map((cid) => ({
+        id: cid,
+      }));
+      setClassrooms(classList);
+    } else {
+      await setDoc(userRef, {
+        name: currentUser.displayName ?? "Unknown User",
+        email: currentUser.email ?? "No Email",
+        photo: currentUser.photoURL ?? "",
+        classroom: {},
+      });
+    }
+  };
+
+  const login = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Login error:", error);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      setUserProfile(null);
+      setClassrooms([]);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-600 text-lg">Loading...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
+      {!user ? (
+        <button
+          onClick={login}
+          className="px-6 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
+        >
+          Login with Google
+        </button>
+      ) : (
+        <div className="w-full max-w-3xl bg-white rounded-lg shadow-lg p-6">
+          {/* ข้อมูลผู้ใช้ */}
+          <div className="flex items-center space-x-4">
+            <img
+              src={userProfile?.photo}
+              alt="Profile"
+              className="w-16 h-16 rounded-full border border-gray-300"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <div>
+              <h1 className="text-xl font-semibold">{userProfile?.name}</h1>
+              <p className="text-gray-600">{user.email ?? "No Email"}</p>
+            </div>
+          </div>
+
+          {/* ปุ่มต่างๆ */}
+          <div className="mt-6 flex space-x-4">
+            <button
+              onClick={logout}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600"
+            >
+              Logout
+            </button>
+            <Link
+              href="/create-classroom"
+              className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
+            >
+              Add Classroom
+            </Link>
+            <Link
+              href="/edit-profile"
+              className="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md hover:bg-yellow-600"
+            >
+              Edit Profile
+            </Link>
+          </div>
+
+          {/* รายชื่อห้องเรียน */}
+          <h2 className="mt-6 text-lg font-semibold">Your Classrooms</h2>
+          <ul className="mt-4 space-y-2">
+            {classrooms.length > 0 ? (
+              classrooms.map((classroom) => (
+                <li
+                  key={classroom.id}
+                  className="flex justify-between items-center bg-gray-200 p-3 rounded-lg shadow-sm"
+                >
+                  <span>Classroom ID: {classroom.id}</span>
+                  <Link
+                    href={`/classroom/${classroom.id}`}
+                    className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  >
+                    Manage
+                  </Link>
+                </li>
+              ))
+            ) : (
+              <p className="text-gray-500">No classrooms yet.</p>
+            )}
+          </ul>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
     </div>
   );
 }
