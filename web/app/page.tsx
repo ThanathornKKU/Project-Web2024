@@ -1,5 +1,21 @@
 import Image from "next/image";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyBnpEzd6fJ6uEIeDcJimbvJPwBbZlA5f3c",
+  authDomain: "project-web2024-fbe30.firebaseapp.com",
+  projectId: "project-web2024-fbe30",
+  storageBucket: "project-web2024-fbe30.firebasestorage.app",
+  messagingSenderId: "127320570395",
+  appId: "1:127320570395:web:71def823b01021587996be",
+  measurementId: "G-VEGVYKFW8Y"
+};
+
+// เริ่มต้น Firebase
+firebase.initializeApp(firebaseConfig);
+
+// ใช้งาน Firestore
+const db = firebase.firestore();
+
 export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
