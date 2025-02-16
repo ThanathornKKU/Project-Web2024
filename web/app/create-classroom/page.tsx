@@ -106,7 +106,7 @@ export default function CreateClassroom() {
         </h2>
 
         <div className="mt-4">
-          <label className="block text-gray-700">Class Code</label>
+          <label className="block text-gray-700">Class ID</label>
           <input
             type="text"
             name="code"
@@ -122,6 +122,17 @@ export default function CreateClassroom() {
             type="text"
             name="name"
             value={formData.name}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-gray-700">Room Name</label>
+          <input
+            type="text"
+            name="room"
+            value={formData.room}
             onChange={handleInputChange}
             className="w-full p-2 border border-gray-300 rounded-md mt-1"
           />
@@ -143,17 +154,6 @@ export default function CreateClassroom() {
               className="w-full mt-2 rounded-md shadow"
             />
           )}
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-gray-700">Room Name</label>
-          <input
-            type="text"
-            name="room"
-            value={formData.room}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1"
-          />
         </div>
 
         <button
