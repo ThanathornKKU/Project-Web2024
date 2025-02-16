@@ -2,16 +2,26 @@
 import React, { useEffect, useState } from "react";
 import { auth, provider, db } from "@/lib/firebase";
 import { signInWithPopup, signOut, User } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
 import Link from "next/link";
 
-interface UserProfile {
+// Interface ใหม่ที่ใช้โครงสร้างจาก Firestore
+interface ClassroomInfo {
+  code: string;
   name: string;
-  photo: string;
+  photo: string; // ✅ รองรับ Base64
+  room: string;
 }
 
 interface Classroom {
   id: string;
+  owner: string;
+  info: ClassroomInfo;
+}
+
+interface UserProfile {
+  name: string;
+  photo: string; // ✅ รองรับ Base64
 }
 
 export default function Home() {
@@ -25,6 +35,7 @@ export default function Home() {
       if (currentUser) {
         setUser(currentUser);
         await fetchUserData(currentUser);
+        await fetchClassrooms();
       } else {
         setUser(null);
         setUserProfile(null);
@@ -48,20 +59,24 @@ export default function Home() {
         name: data.name || "Unknown User",
         photo: data.photo || "https://via.placeholder.com/100",
       });
-
-      // ดึงรายชื่อห้องเรียนจาก users/{uid}/classroom
-      const classList = Object.keys(data.classroom || {}).map((cid) => ({
-        id: cid,
-      }));
-      setClassrooms(classList);
     } else {
       await setDoc(userRef, {
         name: currentUser.displayName ?? "Unknown User",
         email: currentUser.email ?? "No Email",
         photo: currentUser.photoURL ?? "",
-        classroom: {},
       });
     }
+  };
+
+  const fetchClassrooms = async () => {
+    const classCollection = collection(db, "classroom");
+    const classSnapshot = await getDocs(classCollection);
+    const classList = classSnapshot.docs.map((doc) => {
+      const data = doc.data() as Omit<Classroom, "id">;
+      return { id: doc.id, ...data };
+    });
+    console.log(classList);
+    setClassrooms(classList);
   };
 
   const login = async () => {
@@ -83,6 +98,11 @@ export default function Home() {
     }
   };
 
+  // ✅ ตรวจสอบว่า `photo` เป็น Base64 หรือ URL
+  const isBase64 = (photo: string) => {
+    return /^data:image\/[a-z]+;base64,/.test(photo);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -101,64 +121,93 @@ export default function Home() {
           Login with Google
         </button>
       ) : (
-        <div className="w-full max-w-3xl bg-white rounded-lg shadow-lg p-6">
+        <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg p-6">
           {/* ข้อมูลผู้ใช้ */}
-          <div className="flex items-center space-x-4">
-            <img
-              src={userProfile?.photo}
-              alt="Profile"
-              className="w-16 h-16 rounded-full border border-gray-300"
-            />
-            <div>
-              <h1 className="text-xl font-semibold">{userProfile?.name}</h1>
-              <p className="text-gray-600">{user.email ?? "No Email"}</p>
+          <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow">
+            <div className="flex items-center space-x-4">
+              <img
+                src={userProfile?.photo}
+                alt="Profile"
+                className="w-14 h-14 rounded-full border border-gray-300"
+              />
+              <div>
+                <h1 className="text-xl font-semibold">{userProfile?.name}</h1>
+                <p className="text-gray-600">{user.email ?? "No Email"}</p>
+              </div>
+            </div>
+            <div className="flex space-x-3">
+              <Link
+                href="/edit-profile"
+                className="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md hover:bg-yellow-600"
+              >
+                Edit Profile
+              </Link>
+              <button
+                onClick={logout}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg shadow-md hover:bg-gray-600"
+              >
+                Logout
+              </button>
             </div>
           </div>
 
-          {/* ปุ่มต่างๆ */}
-          <div className="mt-6 flex space-x-4">
-            <button
-              onClick={logout}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600"
-            >
-              Logout
-            </button>
+          {/* ปุ่ม Add Classroom */}
+          <div className="flex justify-between items-center mt-6">
+            <h2 className="text-2xl font-semibold">Your Classrooms</h2>
             <Link
               href="/create-classroom"
               className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
             >
-              Add Classroom
-            </Link>
-            <Link
-              href="/edit-profile"
-              className="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md hover:bg-yellow-600"
-            >
-              Edit Profile
+              + Add Classroom
             </Link>
           </div>
 
           {/* รายชื่อห้องเรียน */}
-          <h2 className="mt-6 text-lg font-semibold">Your Classrooms</h2>
-          <ul className="mt-4 space-y-2">
+          <div className="mt-4 grid grid-cols-3 gap-4">
             {classrooms.length > 0 ? (
               classrooms.map((classroom) => (
-                <li
+                <div
                   key={classroom.id}
-                  className="flex justify-between items-center bg-gray-200 p-3 rounded-lg shadow-sm"
+                  className="bg-white shadow-md rounded-lg overflow-hidden"
                 >
-                  <span>Classroom ID: {classroom.id}</span>
-                  <Link
-                    href={`/classroom/${classroom.id}`}
-                    className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                  >
-                    Manage
-                  </Link>
-                </li>
+                  {/* ✅ รองรับ Base64 หรือ URL */}
+                  <img
+                    src={
+                      isBase64(classroom.info.photo)
+                        ? classroom.info.photo
+                        : classroom.info.photo || "https://via.placeholder.com/150"
+                    }
+                    alt="Classroom"
+                    className="w-full h-32 object-cover"
+                    onError={(e) =>
+                      (e.currentTarget.src = "https://via.placeholder.com/150")
+                    }
+                  />
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold">
+                      {classroom.info.name || "No Name"}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Code: {classroom.info.code || "N/A"}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Room: {classroom.info.room || "N/A"}
+                    </p>
+                    <Link
+                      href={`/classroom/${classroom.id}`}
+                      className="mt-2 block px-4 py-2 bg-blue-500 text-white text-center rounded-lg hover:bg-blue-600"
+                    >
+                      Manage
+                    </Link>
+                  </div>
+                </div>
               ))
             ) : (
-              <p className="text-gray-500">No classrooms yet.</p>
+              <p className="text-gray-500 col-span-3">
+                No classrooms available.
+              </p>
             )}
-          </ul>
+          </div>
         </div>
       )}
     </div>

@@ -1,32 +1,182 @@
-// "use client";
-// import { useAuth } from "@/contexts/authContext";
-// import { db } from "@/lib/firebase";
-// import { addDoc, collection, doc, setDoc } from "firebase/firestore";
-// import { useState } from "react";
-// import { useRouter } from "next/navigation";
+"use client";
+import React, { useState } from "react";
+import { db, auth } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
-// export default function CreateClassroom() {
-//   const { user } = useAuth();
-//   const router = useRouter();
-//   const [form, setForm] = useState({ code: "", name: "", room: "", image: "" });
+interface ClassroomInfo {
+  code: string;
+  name: string;
+  photo: string; // ✅ เก็บรูปเป็น Base64
+  room: string;
+}
 
-//   const handleSubmit = async () => {
-//     if (!user) return;
+export default function CreateClassroom() {
+  const user = auth.currentUser;
+  const router = useRouter();
 
-//     const docRef = await addDoc(collection(db, "classroom"), form);
-//     await setDoc(doc(db, `users/${user.uid}/classroom/${docRef.id}`), { status: 1 });
+  const [formData, setFormData] = useState<ClassroomInfo>({
+    code: "",
+    name: "",
+    photo: "",
+    room: "",
+  });
+  const [saving, setSaving] = useState(false);
 
-//     router.push("/");
-//   };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-//   return (
-//     <div className="p-5">
-//       <h1>เพิ่มวิชา</h1>
-//       <input placeholder="รหัสวิชา" className="border p-2 block" onChange={(e) => setForm({ ...form, code: e.target.value })} />
-//       <input placeholder="ชื่อวิชา" className="border p-2 block" onChange={(e) => setForm({ ...form, name: e.target.value })} />
-//       <input placeholder="ชื่อห้องเรียน" className="border p-2 block" onChange={(e) => setForm({ ...form, room: e.target.value })} />
-//       <input placeholder="ลิงก์รูปภาพ" className="border p-2 block" onChange={(e) => setForm({ ...form, image: e.target.value })} />
-//       <button className="bg-blue-500 text-white p-2 mt-2" onClick={handleSubmit}>บันทึก</button>
-//     </div>
-//   );
-// }
+  // ✅ ฟังก์ชันแปลงรูปเป็น Base64
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        setFormData((prev) => ({
+          ...prev,
+          photo: reader.result as string, // ✅ เก็บ Base64 ใน state
+        }));
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) {
+      Swal.fire({
+        title: "Unauthorized!",
+        text: "You need to be logged in to create a classroom.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
+      return;
+    }
+
+    if (!formData.code || !formData.name || !formData.photo || !formData.room) {
+      Swal.fire({
+        title: "Missing Fields!",
+        text: "Please fill in all fields before submitting.",
+        icon: "warning",
+        confirmButtonColor: "#FFA500",
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const classroomRef = collection(db, "classroom");
+      await addDoc(classroomRef, {
+        owner: user.uid, // ✅ เก็บ UID ของเจ้าของห้องเรียน
+        info: formData,  // ✅ บันทึกข้อมูลห้องเรียน
+      });
+
+      Swal.fire({
+        title: "Success!",
+        text: "Classroom has been created successfully.",
+        icon: "success",
+        confirmButtonColor: "#4CAF50",
+      });
+
+      router.push("/"); // ✅ กลับไปหน้า Home
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to create classroom. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
+      console.error("Error creating classroom:", error);
+    }
+
+    setSaving(false);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+        <h2 className="text-2xl font-semibold mb-4 text-center">
+          Create Classroom
+        </h2>
+
+        <div className="mt-4">
+          <label className="block text-gray-700">Class Code</label>
+          <input
+            type="text"
+            name="code"
+            value={formData.code}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-gray-700">Class Name</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+          />
+        </div>
+
+        {/* ✅ อัปโหลดรูปภาพ และแสดงตัวอย่าง */}
+        <div className="mt-4">
+          <label className="block text-gray-700">Classroom Photo</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+          />
+          {formData.photo && (
+            <img
+              src={formData.photo}
+              alt="Preview"
+              className="w-full mt-2 rounded-md shadow"
+            />
+          )}
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-gray-700">Room Name</label>
+          <input
+            type="text"
+            name="room"
+            value={formData.room}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+          />
+        </div>
+
+        <button
+          onClick={handleSave}
+          className={`w-full mt-6 p-2 text-white rounded-lg ${
+            saving
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600"
+          }`}
+          disabled={saving}
+        >
+          {saving ? "Saving..." : "Create Classroom"}
+        </button>
+
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => router.push("/")}
+            className="text-blue-500 hover:underline"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

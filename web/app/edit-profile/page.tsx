@@ -4,6 +4,7 @@ import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 export default function EditProfile() {
   const user = auth.currentUser;
@@ -41,7 +42,11 @@ export default function EditProfile() {
   };
 
   // ✅ ฟังก์ชันลดขนาดรูปก่อนแปลงเป็น Base64
-  const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => {
+  const resizeImage = (
+    file: File,
+    maxWidth: number,
+    maxHeight: number
+  ): Promise<string> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -96,11 +101,26 @@ export default function EditProfile() {
         photo, // ✅ เก็บ Base64 ลง Firestore
       });
 
-      alert("Profile updated successfully!");
+      // ✅ ใช้ SweetAlert แสดงเมื่อบันทึกสำเร็จ
+      Swal.fire({
+        title: "Success!",
+        text: "Your profile has been updated.",
+        icon: "success",
+        confirmButtonColor: "#4CAF50",
+        timer : 300000
+      });
+
       router.push("/"); // กลับไปหน้า Home
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile!");
+
+      // ❌ ใช้ SweetAlert แสดง Error Message
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update profile. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
     }
 
     setSaving(false);
@@ -117,7 +137,9 @@ export default function EditProfile() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-center">Edit Profile</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-center">
+          Edit Profile
+        </h2>
 
         <div className="flex flex-col items-center space-y-4">
           <img
@@ -125,8 +147,17 @@ export default function EditProfile() {
             alt="Profile"
             className="w-24 h-24 rounded-full border border-gray-300 object-cover"
           />
-          <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" id="fileInput" />
-          <label htmlFor="fileInput" className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+            id="fileInput"
+          />
+          <label
+            htmlFor="fileInput"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600"
+          >
             Upload Photo
           </label>
         </div>
@@ -154,7 +185,9 @@ export default function EditProfile() {
         <button
           onClick={handleSave}
           className={`w-full mt-6 p-2 text-white rounded-lg ${
-            saving ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
+            saving
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600"
           }`}
           disabled={saving}
         >
