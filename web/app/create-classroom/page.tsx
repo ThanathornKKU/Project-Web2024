@@ -24,28 +24,64 @@ export default function CreateClassroom() {
   });
   const [saving, setSaving] = useState(false);
 
+  // ✅ ฟังก์ชัน Resize รูปภาพก่อนแปลงเป็น Base64
+  const resizeImage = (file: File, maxWidth = 300, maxHeight = 300) => {
+    return new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+
+          // ปรับขนาดให้ไม่เกิน maxWidth / maxHeight
+          if (width > maxWidth || height > maxHeight) {
+            const scaleFactor = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * scaleFactor);
+            height = Math.round(height * scaleFactor);
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          resolve(canvas.toDataURL("image/jpeg", 0.8)); // ✅ ลดคุณภาพเหลือ 80%
+        };
+      };
+    });
+  };
+
+  // ✅ ฟังก์ชันอัปโหลดรูปภาพและ Resize ก่อนแปลงเป็น Base64
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      try {
+        const resizedBase64 = await resizeImage(file);
+        setFormData((prev) => ({
+          ...prev,
+          photo: resizedBase64, // ✅ เก็บรูป Base64 ที่ Resize แล้ว
+        }));
+      } catch (error) {
+        console.error("Error resizing image:", error);
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to process image. Please try again.",
+          icon: "error",
+        });
+      }
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  // ✅ ฟังก์ชันแปลงรูปเป็น Base64
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        setFormData((prev) => ({
-          ...prev,
-          photo: reader.result as string, // ✅ เก็บ Base64 ใน state
-        }));
-      };
-
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleSave = async () => {
@@ -73,8 +109,8 @@ export default function CreateClassroom() {
     try {
       const classroomRef = collection(db, "classroom");
       await addDoc(classroomRef, {
-        owner: user.uid, // ✅ เก็บ UID ของเจ้าของห้องเรียน
-        info: formData,  // ✅ บันทึกข้อมูลห้องเรียน
+        owner: user.uid,
+        info: formData,
       });
 
       Swal.fire({
@@ -84,7 +120,7 @@ export default function CreateClassroom() {
         confirmButtonColor: "#4CAF50",
       });
 
-      router.push("/"); // ✅ กลับไปหน้า Home
+      router.push("/");
     } catch (error) {
       Swal.fire({
         title: "Error!",
