@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import Image from "next/image";
 
 // ✅ ใช้ Dynamic Import ป้องกัน `QRCodeCanvas is not a constructor`
 const QRCodeCanvas = dynamic(() => import("qrcode.react").then((mod) => mod.QRCodeCanvas), { ssr: false });
@@ -81,7 +82,7 @@ export default function ClassroomPage() {
       {classroom && (
         <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
           <div className="relative w-full">
-            <img
+            <Image
               src={classroom.info.photo || "https://via.placeholder.com/800x200"}
               alt="Classroom"
               className="w-full h-80 object-cover rounded-lg shadow-md"
