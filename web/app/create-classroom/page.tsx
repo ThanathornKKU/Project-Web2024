@@ -97,8 +97,8 @@ export default function CreateClassroom() {
 
     if (!formData.code || !formData.name || !formData.photo || !formData.room) {
       Swal.fire({
-        title: "Missing Fields!",
-        text: "Please fill in all fields before submitting.",
+        title: "กรอกข้อมูลให้ครบถ้วน!",
+        text: "",
         icon: "warning",
         confirmButtonColor: "#FFA500",
       });
@@ -114,8 +114,8 @@ export default function CreateClassroom() {
       });
 
       Swal.fire({
-        title: "Success!",
-        text: "Classroom has been created successfully.",
+        title: "สร้างห้องเรียนเสร็จเรียบร้อย!",
+        text: "",
         icon: "success",
         confirmButtonColor: "#4CAF50",
       });
@@ -138,11 +138,11 @@ export default function CreateClassroom() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-2xl font-semibold mb-4 text-center">
-          Create Classroom
+          สร้างห้องเรียน
         </h2>
 
         <div className="mt-4">
-          <label className="block text-gray-700">Class ID</label>
+          <label className="block text-gray-700">รหัสวิชา *</label>
           <input
             type="text"
             name="code"
@@ -153,7 +153,7 @@ export default function CreateClassroom() {
         </div>
 
         <div className="mt-4">
-          <label className="block text-gray-700">Class Name</label>
+          <label className="block text-gray-700">ชื่อวิชา *</label>
           <input
             type="text"
             name="name"
@@ -164,7 +164,7 @@ export default function CreateClassroom() {
         </div>
 
         <div className="mt-4">
-          <label className="block text-gray-700">Room Name</label>
+          <label className="block text-gray-700">ห้องเรียน *</label>
           <input
             type="text"
             name="room"
@@ -176,7 +176,7 @@ export default function CreateClassroom() {
 
         {/* ✅ อัปโหลดรูปภาพ และแสดงตัวอย่าง */}
         <div className="mt-4">
-          <label className="block text-gray-700">Classroom Photo</label>
+          <label className="block text-gray-700">รูปภาพห้องเรียน *</label>
           <input
             type="file"
             accept="image/*"
