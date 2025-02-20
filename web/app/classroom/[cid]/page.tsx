@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import Link from "next/link";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
@@ -79,14 +80,16 @@ export default function ClassroomPage() {
       {/* Classroom Header */}
       {classroom && (
         <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
-          <div className="relative">
+          <div className="relative w-full">
             <img
               src={classroom.info.photo || "https://via.placeholder.com/800x200"}
               alt="Classroom"
-              className="w-full h-52 object-cover rounded-lg"
+              className="w-full h-80 object-cover rounded-lg shadow-md"
             />
             <button className="absolute top-4 right-4 px-4 py-2 bg-yellow-400 text-white rounded-lg shadow-md hover:bg-yellow-500">
+              <Link href = "/edit-classroom">
               Edit Classroom
+              </Link>
             </button>
           </div>
           <h2 className="text-xl font-semibold mt-4">{classroom.info.code} {classroom.info.name}</h2>
@@ -97,7 +100,7 @@ export default function ClassroomPage() {
       <div className="mt-6 flex">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold">QR-Classroom</h3>
-          <QRCodeCanvas value={cid as string} size={150} />
+          <QRCodeCanvas value={cid as string} size={75} />
           <button
             onClick={showQRCode}
             className="block w-full mt-2 bg-gray-200 text-gray-700 p-2 rounded-lg text-sm hover:bg-gray-300"

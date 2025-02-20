@@ -177,8 +177,9 @@ export default function EditProfile() {
           <input
             type="email"
             value={email}
+            readOnly
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+            className="w-full p-2 border border-gray-300 text-gray-400 rounded-md mt-1"
           />
         </div>
 
