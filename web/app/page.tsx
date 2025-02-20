@@ -2,15 +2,15 @@
 import React, { useEffect, useState } from "react";
 import { auth, provider, db } from "@/lib/firebase";
 import { signInWithPopup, signOut, User } from "firebase/auth";
-import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, getDocs, query, where } from "firebase/firestore";
 import Link from "next/link";
 import Image from "next/image";
 
-// Interface ใหม่ที่ใช้โครงสร้างจาก Firestore
+// Interface ของ Classroom
 interface ClassroomInfo {
   code: string;
   name: string;
-  photo: string; // ✅ รองรับ Base64
+  photo: string;
   room: string;
 }
 
@@ -22,7 +22,7 @@ interface Classroom {
 
 interface UserProfile {
   name: string;
-  photo: string; // ✅ รองรับ Base64
+  photo: string;
 }
 
 export default function Home() {
@@ -36,7 +36,7 @@ export default function Home() {
       if (currentUser) {
         setUser(currentUser);
         await fetchUserData(currentUser);
-        await fetchClassrooms();
+        await fetchClassrooms(currentUser.uid);
       } else {
         setUser(null);
         setUserProfile(null);
@@ -69,14 +69,14 @@ export default function Home() {
     }
   };
 
-  const fetchClassrooms = async () => {
+  const fetchClassrooms = async (uid: string) => {
     const classCollection = collection(db, "classroom");
-    const classSnapshot = await getDocs(classCollection);
-    const classList = classSnapshot.docs.map((doc) => {
-      const data = doc.data() as Omit<Classroom, "id">;
-      return { id: doc.id, ...data };
-    });
-    console.log(classList);
+    const q = query(classCollection, where("owner", "==", uid)); // ✅ ดึงเฉพาะห้องเรียนของ user
+    const classSnapshot = await getDocs(q);
+    const classList = classSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Classroom, "id">),
+    }));
     setClassrooms(classList);
   };
 
@@ -99,7 +99,6 @@ export default function Home() {
     }
   };
 
-  // ✅ ตรวจสอบว่า `photo` เป็น Base64 หรือ URL
   const isBase64 = (photo: string) => {
     return /^data:image\/[a-z]+;base64,/.test(photo);
   };
