@@ -126,7 +126,7 @@ export default function Home() {
           <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow">
             <div className="flex items-center space-x-4">
               <Image
-                src={userProfile?.photo || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
+                src={userProfile?.photo ?? "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
                 alt="Profile"
                 width={56}
                 height={56}
