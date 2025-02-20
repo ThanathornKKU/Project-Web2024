@@ -130,7 +130,7 @@ export default function Home() {
                 alt="Profile"
                 width={56}
                 height={56}
-                className="rounded-full border border-gray-300"
+                className="w-14 h-14 rounded-full border border-gray-300"
               />
               <div>
                 <h1 className="text-xl font-semibold">{userProfile?.name}</h1>
