@@ -87,7 +87,7 @@ export default function ClassroomPage() {
               className="w-full h-80 object-cover rounded-lg shadow-md"
             />
             <button className="absolute top-4 right-4 px-4 py-2 bg-yellow-400 text-white rounded-lg shadow-md hover:bg-yellow-500">
-              <Link href = "/edit-classroom">
+              <Link href = {`/edit-classroom/${cid}`}>
               Edit Classroom
               </Link>
             </button>
