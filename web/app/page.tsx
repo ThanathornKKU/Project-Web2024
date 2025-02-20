@@ -4,6 +4,7 @@ import { auth, provider, db } from "@/lib/firebase";
 import { signInWithPopup, signOut, User } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
 import Link from "next/link";
+import Image from "next/image";
 
 // Interface ใหม่ที่ใช้โครงสร้างจาก Firestore
 interface ClassroomInfo {
@@ -57,7 +58,7 @@ export default function Home() {
       const data = userSnap.data();
       setUserProfile({
         name: data.name || "Unknown User",
-        photo: data.photo || "https://via.placeholder.com/100",
+        photo: data.photo || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg",
       });
     } else {
       await setDoc(userRef, {
@@ -125,10 +126,12 @@ export default function Home() {
           {/* ข้อมูลผู้ใช้ */}
           <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow">
             <div className="flex items-center space-x-4">
-              <img
-                src={userProfile?.photo}
+              <Image
+                src={userProfile?.photo || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
                 alt="Profile"
-                className="w-14 h-14 rounded-full border border-gray-300"
+                width={56}
+                height={56}
+                className="rounded-full border border-gray-300"
               />
               <div>
                 <h1 className="text-xl font-semibold">{userProfile?.name}</h1>
@@ -171,13 +174,15 @@ export default function Home() {
                   className="bg-white shadow-md rounded-lg overflow-hidden"
                 >
                   {/* ✅ รองรับ Base64 หรือ URL */}
-                  <img
+                  <Image
                     src={
                       isBase64(classroom.info.photo)
                         ? classroom.info.photo
                         : classroom.info.photo || "https://via.placeholder.com/150"
                     }
                     alt="Classroom"
+                    width={56}
+                    height={56}
                     className="w-full h-32 object-cover"
                     onError={(e) =>
                       (e.currentTarget.src = "https://via.placeholder.com/150")
