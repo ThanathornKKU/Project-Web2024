@@ -83,8 +83,10 @@ export default function ClassroomPage() {
         <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
           <div className="relative w-full">
             <Image
-              src={classroom.info.photo || "https://via.placeholder.com/800x200"}
+              src={classroom.info.photo || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
               alt="Classroom"
+              width={400}
+              height={200}
               className="w-full h-80 object-cover rounded-lg shadow-md"
             />
             <button className="absolute top-4 right-4 px-4 py-2 bg-yellow-400 text-white rounded-lg shadow-md hover:bg-yellow-500">
