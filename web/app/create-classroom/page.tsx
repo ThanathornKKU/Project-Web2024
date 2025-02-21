@@ -97,7 +97,7 @@ export default function CreateClassroom() {
 
     if (!formData.code || !formData.name || !formData.photo || !formData.room) {
       Swal.fire({
-        title: "กรอกข้อมูลให้ครบถ้วน!",
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
         text: "",
         icon: "warning",
         confirmButtonColor: "#FFA500",
@@ -137,7 +137,7 @@ export default function CreateClassroom() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+        <h2 className="text-2xl font-semibold mb-4 text-center text-black">
           สร้างห้องเรียน
         </h2>
 
@@ -148,7 +148,7 @@ export default function CreateClassroom() {
             name="code"
             value={formData.code}
             onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+            className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
           />
         </div>
 
@@ -159,7 +159,7 @@ export default function CreateClassroom() {
             name="name"
             value={formData.name}
             onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+            className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
           />
         </div>
 
@@ -170,7 +170,7 @@ export default function CreateClassroom() {
             name="room"
             value={formData.room}
             onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+            className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
           />
         </div>
 
@@ -181,7 +181,7 @@ export default function CreateClassroom() {
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1"
+            className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
           />
           {formData.photo && (
             <img
