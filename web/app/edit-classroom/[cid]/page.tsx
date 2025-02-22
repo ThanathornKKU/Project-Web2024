@@ -28,10 +28,10 @@ export default function EditClassroom() {
   const [isOwner, setIsOwner] = useState(false); // ตรวจสอบว่าเป็นเจ้าของหรือไม่
 
   useEffect(() => {
-    console.log(user && cid,"========");
-    console.log(user,"========");
-    console.log(cid,"========");
-    
+    console.log(user && cid, "========");
+    console.log(user, "========");
+    console.log(cid, "========");
+
     if (user && cid) {
       fetchClassroomData(cid);
     }
@@ -47,9 +47,9 @@ export default function EditClassroom() {
         const data = classroomSnap.data();
         setFormData(data.info);
         setIsOwner(data.owner == user?.uid); // ตรวจสอบว่าเป็นเจ้าของห้องเรียนหรือไม่
-        console.log(data.owner,"no");
-        console.log(user?.uid,"yes")
-        
+        console.log(data.owner, "no");
+        console.log(user?.uid, "yes")
+
       } else {
         Swal.fire({
           title: "Error!",
@@ -177,59 +177,62 @@ export default function EditClassroom() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-center">แก้ไขห้องเรียน</h2>
+    <>
+      <title>Edit Classroom</title>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+        <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-center">แก้ไขห้องเรียน</h2>
 
-        {!isOwner ? (
-          <p className="text-red-500 text-center">คุณไม่มีสิทธิ์แก้ไขห้องเรียนนี้</p>
-        ) : (
-          <>
-            <div className="mt-4">
-              <label className="block text-gray-700">รหัสวิชา *</label>
-              <input
-                type="text"
-                name="code"
-                value={formData.code}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md mt-1"
-              />
-            </div>
+          {!isOwner ? (
+            <p className="text-red-500 text-center">คุณไม่มีสิทธิ์แก้ไขห้องเรียนนี้</p>
+          ) : (
+            <>
+              <div className="mt-4">
+                <label className="block text-gray-700">รหัสวิชา *</label>
+                <input
+                  type="text"
+                  name="code"
+                  value={formData.code}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                />
+              </div>
 
-            <div className="mt-4">
-              <label className="block text-gray-700">ชื่อวิชา *</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md mt-1"
-              />
-            </div>
+              <div className="mt-4">
+                <label className="block text-gray-700">ชื่อวิชา *</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                />
+              </div>
 
-            <div className="mt-4">
-              <label className="block text-gray-700">ห้องเรียน *</label>
-              <input
-                type="text"
-                name="room"
-                value={formData.room}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md mt-1"
-              />
-            </div>
+              <div className="mt-4">
+                <label className="block text-gray-700">ห้องเรียน *</label>
+                <input
+                  type="text"
+                  name="room"
+                  value={formData.room}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                />
+              </div>
 
-            <div className="mt-4">
-              <label className="block text-gray-700">รูปภาพห้องเรียน *</label>
-              <input type="file" accept="image/*" onChange={handleFileChange} className="w-full p-2 border border-gray-300 rounded-md mt-1" />
-              {formData.photo && <img src={formData.photo} alt="Preview" className="w-full mt-2 rounded-md shadow" />}
-            </div>
+              <div className="mt-4">
+                <label className="block text-gray-700">รูปภาพห้องเรียน *</label>
+                <input type="file" accept="image/*" onChange={handleFileChange} className="w-full p-2 border border-gray-300 rounded-md mt-1" />
+                {formData.photo && <img src={formData.photo} alt="Preview" className="w-full mt-2 rounded-md shadow" />}
+              </div>
 
-            <button onClick={handleSave} className={`w-full mt-6 p-2 text-white rounded-lg ${saving ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"}`} disabled={saving}>
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
-          </>
-        )}
+              <button onClick={handleSave} className={`w-full mt-6 p-2 text-white rounded-lg ${saving ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"}`} disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

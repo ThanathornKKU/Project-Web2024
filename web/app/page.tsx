@@ -80,11 +80,32 @@ export default function Home() {
     setClassrooms(classList);
   };
 
-  const login = async () => {
+  // const login = async () => {
+  //   try {
+  //     await signInWithPopup(auth, provider);
+  //   } catch (error) {
+  //     console.error("Login error:", error);
+  //   }
+  // };
+
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const logingoogle = async () => {
+    // ถ้า isLoggingIn เป็น true ให้หยุดทำงาน (ป้องกันการเรียกซ้ำ)
+    if (isLoggingIn) return;
+    setIsLoggingIn(true);
     try {
       await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch (error: any) {
+      if (error.code === "auth/popup-closed-by-user") {
+        console.log("Popup ถูกปิดโดยผู้ใช้, login ถูกยกเลิก");
+      } else if (error.code === "auth/cancelled-popup-request") {
+        console.log("Popup request ถูกยกเลิก");
+      } else {
+        console.error("Login error:", error);
+      }
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -110,109 +131,108 @@ export default function Home() {
       </div>
     );
   }
+  
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
       {!user ? (
-        <button
-          onClick={login}
-          className="px-6 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
-        >
-          Login with Google
-        </button>
-      ) : (
-        <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg p-6">
-          {/* ข้อมูลผู้ใช้ */}
-          {/* <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow">
-            <div className="flex items-center space-x-4">
-              <Image
-                src={userProfile?.photo ?? "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
-                alt="Profile"
-                width={56}
-                height={56}
-                className="w-14 h-14 rounded-full border border-gray-300"
-              />
-              <div>
-                <h1 className="text-xl font-semibold">{userProfile?.name}</h1>
-                <p className="text-gray-600">{user.email ?? "No Email"}</p>
-              </div>
-            </div>
-            <div className="flex space-x-3">
-              <Link
-                href="/edit-profile"
-                className="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md hover:bg-yellow-600"
-              >
-                Edit Profile
-              </Link>
+        <>
+          <title>Login</title>
+          <div className="min-h-[90vh] w-full flex items-center justify-center bg-gray-100 p-6">
+          <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-10 flex flex-col items-center justify-center">
+            <div className="py-10 w-full flex flex-col items-center justify-center text-center">
+              <h2 className="text-4xl font-semibold mb-6 text-black">Classroom X</h2>
+              <h2 className="text-2xl font-medium mb-8 text-gray-700">เพราะ X เป็นได้ทุกอย่าง</h2>
+
+              {/* Google Login Button */}
               <button
-                onClick={logout}
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg shadow-md hover:bg-gray-600"
+                onClick={logingoogle}
+                className="w-full max-w-md flex items-center justify-center gap-3 px-8 py-3 bg-white text-black font-semibold rounded-xl shadow-md border hover:bg-blue-600 hover:text-white transition-colors duration-200 mb-4"
               >
-                Logout
+                <img src="/google-icon.png" alt="Google Icon" className="w-7 h-7" />
+                <span>Login with Google</span>
               </button>
+
+              {/* Phone Login Button */}
+              <button
+                // onClick={logingoogle}
+                className="w-full max-w-md flex items-center justify-center gap-3 px-8 py-3 bg-white text-black font-semibold rounded-xl shadow-md border hover:bg-blue-600 hover:text-white transition-colors duration-200"
+              >
+                <img src="/phone-icon.png" alt="Phone Icon" className="w-7 h-7" />
+                <span>Login with Phone</span>
+              </button>
+
+              <div id="recaptcha-container"></div>
             </div>
-          </div> */}
-
-          {/* ปุ่ม Add Classroom */}
-          <div className="flex justify-between items-center mt-6">
-            <h2 className="text-2xl font-semibold">Your Classrooms</h2>
-            <Link
-              href="/create-classroom"
-              className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
-            >
-              + Add Classroom
-            </Link>
           </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <title>Home</title>
+          <div className="w-full max-w-5xl bg-white rounded-lg shadow-lg px-20 pt-4 pb-8">
 
-          {/* รายชื่อห้องเรียน */}
-          <div className="mt-4 grid grid-cols-3 gap-4">
-            {classrooms.length > 0 ? (
-              classrooms.map((classroom) => (
-                <div
-                  key={classroom.id}
-                  className="bg-white shadow-md rounded-lg overflow-hidden"
-                >
-                  {/* ✅ รองรับ Base64 หรือ URL */}
-                  <Image
-                    src={
-                      isBase64(classroom.info.photo)
-                        ? classroom.info.photo
-                        : classroom.info.photo || "https://via.placeholder.com/150"
-                    }
-                    alt="Classroom"
-                    width={56}
-                    height={56}
-                    className="w-full h-32 object-cover"
-                    onError={(e) =>
-                      (e.currentTarget.src = "https://via.placeholder.com/150")
-                    }
-                  />
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold">
-                      {classroom.info.name || "No Name"}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      รหัสวิชา: {classroom.info.code || "N/A"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      ห้องเรียน: {classroom.info.room || "N/A"}
-                    </p>
-                    <Link
-                      href={`/classroom/${classroom.id}`}
-                      className="mt-2 block px-4 py-2 bg-blue-500 text-white text-center rounded-lg hover:bg-blue-600"
-                    >
-                      Manage
-                    </Link>
+            {/* ปุ่ม Add Classroom */}
+            <div className="flex justify-between items-center mt-6">
+              <h2 className="text-2xl font-semibold">Your Classrooms</h2>
+              <Link
+                href="/create-classroom"
+                className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
+              >
+                + Add Classroom
+              </Link>
+            </div>
+
+            {/* รายชื่อห้องเรียน */}
+            <div className="mt-4 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {classrooms.length > 0 ? (
+                classrooms.map((classroom) => (
+                  <div
+                    key={classroom.id}
+                    className="bg-white shadow-md rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-2xl"
+                  >
+                    <Image
+                      src={
+                        isBase64(classroom.info.photo)
+                          ? classroom.info.photo
+                          : classroom.info.photo || "https://via.placeholder.com/150"
+                      }
+                      alt="Classroom"
+                      width={56}
+                      height={56}
+                      className="w-full h-40 object-cover"
+                      onError={(e) =>
+                        (e.currentTarget.src = "https://via.placeholder.com/150")
+                      }
+                    />
+                    <div className="px-4 pt-2 pb-4">
+                      <h3 className="text-lg font-semibold">
+                        {classroom.info.name || "No Name"}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        รหัสวิชา: {classroom.info.code || "N/A"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        ห้องเรียน: {classroom.info.room || "N/A"}
+                      </p>
+                      <Link
+                        href={`/classroom/${classroom.id}`}
+                        className="mt-3 block px-4 py-2 bg-blue-500 text-white text-center rounded-lg hover:bg-blue-600"
+                      >
+                        Manage
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500 col-span-3">
-                No classrooms available.
-              </p>
-            )}
+                ))
+              ) : (
+                <p className="text-gray-500 col-span-3">
+                  No classrooms available.
+                </p>
+              )}
+            </div>
+            
           </div>
-        </div>
+        </>
       )}
     </div>
   );

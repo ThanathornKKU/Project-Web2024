@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signOut } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBnpEzd6fJ6uEIeDcJimbvJPwBbZlA5f3c",
@@ -20,3 +21,4 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const provider = new GoogleAuthProvider();
 export { signOut };
+export { RecaptchaVerifier, signInWithPhoneNumber }; // ✅ เพิ่มการ export

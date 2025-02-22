@@ -83,46 +83,49 @@ export default function ShowStudents() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      {/* ✅ เรียกใช้ Navbar */}
-      <Navbar />
+    <>
+        <title>Students | Classroom</title>
+      <div className="min-h-screen bg-gray-100 p-6">
+        {/* ✅ เรียกใช้ Navbar */}
+        <Navbar />
 
-      <div className="max-w-4xl mx-auto bg-white p-6 shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold mb-4">รายชื่อนักศึกษา</h2>
+        <div className="max-w-4xl mx-auto bg-white p-6 shadow-lg rounded-lg">
+          <h2 className="text-2xl font-bold mb-4">รายชื่อนักศึกษา</h2>
 
-        {loading ? (
-          <p className="text-gray-600">Loading students...</p>
-        ) : (
-            <table className="w-full border-collapse">
-            <thead >
-              <tr className="text-left border-b-2 border-black">
-                <th className="p-3 font-semibold">ลำดับ</th> {/* ✅ ลำดับ */}
-                <th className="p-3 font-semibold">รหัสนักศึกษา</th>
-                <th className="p-3 font-semibold">ชื่อ - นามสกุล</th>
-                <th className="p-3 font-semibold text-center">คะแนนการเช็คชื่อ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.length > 0 ? (
-                students.map((student, index) => (
-                    <tr key={student.id} className={index % 2 === 0 ? "bg-gray-200" : "bg-white"}>
-                    <td className="p-3">{index + 1}</td> {/* ✅ ลำดับอัตโนมัติ */}
-                    <td className="p-3">{student.stdid}</td>
-                    <td className="p-3">{student.name}</td>
-                    <td className="p-3 text-center">{student.status}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="text-center p-4 text-gray-500">
-                    No students found.
-                  </td>
+          {loading ? (
+            <p className="text-gray-600">Loading students...</p>
+          ) : (
+              <table className="w-full border-collapse">
+              <thead >
+                <tr className="text-left border-b-2 border-black">
+                  <th className="p-3 font-semibold">ลำดับ</th> {/* ✅ ลำดับ */}
+                  <th className="p-3 font-semibold">รหัสนักศึกษา</th>
+                  <th className="p-3 font-semibold">ชื่อ - นามสกุล</th>
+                  <th className="p-3 font-semibold text-center">คะแนนการเช็คชื่อ</th>
                 </tr>
-              )}
-            </tbody>
-          </table>          
-        )}
+              </thead>
+              <tbody>
+                {students.length > 0 ? (
+                  students.map((student, index) => (
+                      <tr key={student.id} className={index % 2 === 0 ? "bg-gray-200" : "bg-white"}>
+                      <td className="p-3">{index + 1}</td> {/* ✅ ลำดับอัตโนมัติ */}
+                      <td className="p-3">{student.stdid}</td>
+                      <td className="p-3">{student.name}</td>
+                      <td className="p-3 text-center">{student.status}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="text-center p-4 text-gray-500">
+                      No students found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>          
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
