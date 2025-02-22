@@ -77,7 +77,7 @@ export default function Navbar() {
   if (!user) return null;
 
   return (
-    <nav className="bg-blue-600 text-white shadow-md">
+    <nav className="bg-black-300 text-black shadow-md border-b border-gray-200">
       {/* Container ที่ครอบคลุมเต็มความกว้าง */}
       <div className="w-full flex justify-between items-center h-20 px-10">
         {/* ข้อความ MyApp อยู่ด้านซ้าย */}
@@ -138,7 +138,7 @@ export default function Navbar() {
             </div>
           )} */}
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-72 bg-white text-black rounded-md shadow-lg py-1 z-10">
+            <div className="absolute right-0 mt-2 w-72 bg-white border text-black rounded-md shadow-lg py-1 z-10">
               {/* ข้อมูลผู้ใช้ */}
               <div className="px-6 py-3 border-b">
                 <h1 className="text-xl font-semibold break-words">{userProfile.name}</h1>
