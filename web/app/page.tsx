@@ -192,10 +192,10 @@ export default function Home() {
                       {classroom.info.name || "No Name"}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Code: {classroom.info.code || "N/A"}
+                      รหัสวิชา: {classroom.info.code || "N/A"}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Room: {classroom.info.room || "N/A"}
+                      ห้องเรียน: {classroom.info.room || "N/A"}
                     </p>
                     <Link
                       href={`/classroom/${classroom.id}`}

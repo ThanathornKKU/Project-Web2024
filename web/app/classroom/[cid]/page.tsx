@@ -8,6 +8,7 @@ import Link from "next/link";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Image from "next/image";
+import Navbar from "@/app/components/navbar";
 
 // ✅ ใช้ Dynamic Import ป้องกัน `QRCodeCanvas is not a constructor`
 const QRCodeCanvas = dynamic(() => import("qrcode.react").then((mod) => mod.QRCodeCanvas), { ssr: false });
@@ -70,13 +71,7 @@ export default function ClassroomPage() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* Navigation Tabs */}
-      <div className="bg-white p-4 rounded-lg shadow-md flex space-x-4 text-gray-600 border-b">
-        <span className="font-semibold text-green-600 border-b-2 border-green-600 pb-2">Dashboard</span>
-        <span className="hover:text-green-600 cursor-pointer">Q&A</span>
-        <span className="hover:text-green-600 cursor-pointer">Check-in</span>
-        <span className="hover:text-green-600 cursor-pointer">Scores</span>
-        <span className="hover:text-green-600 cursor-pointer">Students</span>
-      </div>
+            <Navbar />
 
       {/* Classroom Header */}
       {classroom && (
