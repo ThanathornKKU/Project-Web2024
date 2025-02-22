@@ -123,7 +123,7 @@ export default function Home() {
       ) : (
         <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg p-6">
           {/* ข้อมูลผู้ใช้ */}
-          <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow">
+          {/* <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow">
             <div className="flex items-center space-x-4">
               <Image
                 src={userProfile?.photo ?? "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
@@ -151,7 +151,7 @@ export default function Home() {
                 Logout
               </button>
             </div>
-          </div>
+          </div> */}
 
           {/* ปุ่ม Add Classroom */}
           <div className="flex justify-between items-center mt-6">
