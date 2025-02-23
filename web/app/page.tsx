@@ -71,7 +71,7 @@ export default function Home() {
 
   const fetchClassrooms = async (uid: string) => {
     try {
-      // 🔹 1) ดึง classroom IDs จาก users/{uid}/classroom
+      // 🔹 1) ดึง classroom IDs จาก users/{uid}/classroom ที่ status = 1 เท่านั้น
       const userRef = doc(db, "users", uid);
       const userSnap = await getDoc(userRef);
   
@@ -82,17 +82,23 @@ export default function Home() {
       }
   
       const userData = userSnap.data();
-      const classroomIds = userData.classroom ? Object.keys(userData.classroom) : [];
+      
+      // ✅ คัดกรองเฉพาะห้องที่ status = 1 (เป็นอาจารย์)
+      const classroomIds = userData.classroom 
+        ? Object.entries(userData.classroom)
+            .filter(([_, value]: [string, any]) => value.status === 1)
+            .map(([cid]) => cid)
+        : [];
   
       if (classroomIds.length === 0) {
-        console.log("User is not in any classrooms.");
+        console.log("User is not an owner of any classrooms.");
         setClassrooms([]);
         return;
       }
   
-      // 🔹 2) ดึงข้อมูลห้องเรียนที่ user มีอยู่ใน Firestore
+      // 🔹 2) ดึงข้อมูลห้องเรียนที่มี ID ตรงกับ classroomIds
       const classCollection = collection(db, "classroom");
-      const q = query(classCollection, where("__name__", "in", classroomIds)); // ✅ ดึง classroom ที่ user มีอยู่
+      const q = query(classCollection, where("__name__", "in", classroomIds)); // ✅ ดึงเฉพาะห้องที่ user เป็นอาจารย์
       const classSnapshot = await getDocs(q);
   
       const classList = classSnapshot.docs.map((doc) => ({
@@ -105,8 +111,7 @@ export default function Home() {
       console.error("Error fetching classrooms:", error);
       setClassrooms([]);
     }
-  };
-  
+  };  
 
   // const login = async () => {
   //   try {
