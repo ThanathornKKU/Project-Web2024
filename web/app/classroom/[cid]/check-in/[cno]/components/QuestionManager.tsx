@@ -11,8 +11,10 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
 
     // 🔹 ดึงข้อมูลคำถามจาก Firestore
     useEffect(() => {
-        fetchQuestions();
-    }, []);
+        if (cid && cno) {
+            fetchQuestions();
+        }
+    }, [cid, cno]);    
 
     const fetchQuestions = async () => {
         const qRef = collection(db, `classroom/${cid}/checkin/${cno}/question`);
