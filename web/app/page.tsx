@@ -70,15 +70,48 @@ export default function Home() {
   };
 
   const fetchClassrooms = async (uid: string) => {
-    const classCollection = collection(db, "classroom");
-    const q = query(classCollection, where("owner", "==", uid)); // ✅ ดึงเฉพาะห้องเรียนของ user
-    const classSnapshot = await getDocs(q);
-    const classList = classSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...(doc.data() as Omit<Classroom, "id">),
-    }));
-    setClassrooms(classList);
-  };
+    try {
+      // 🔹 1) ดึง classroom IDs จาก users/{uid}/classroom ที่ status = 1 เท่านั้น
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+  
+      if (!userSnap.exists()) {
+        console.warn("User data not found.");
+        setClassrooms([]);
+        return;
+      }
+  
+      const userData = userSnap.data();
+      
+      // ✅ คัดกรองเฉพาะห้องที่ status = 1 (เป็นอาจารย์)
+      const classroomIds = userData.classroom 
+        ? Object.entries(userData.classroom)
+            .filter(([_, value]: [string, any]) => value.status === 1)
+            .map(([cid]) => cid)
+        : [];
+  
+      if (classroomIds.length === 0) {
+        console.log("User is not an owner of any classrooms.");
+        setClassrooms([]);
+        return;
+      }
+  
+      // 🔹 2) ดึงข้อมูลห้องเรียนที่มี ID ตรงกับ classroomIds
+      const classCollection = collection(db, "classroom");
+      const q = query(classCollection, where("__name__", "in", classroomIds)); // ✅ ดึงเฉพาะห้องที่ user เป็นอาจารย์
+      const classSnapshot = await getDocs(q);
+  
+      const classList = classSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Classroom, "id">),
+      }));
+  
+      setClassrooms(classList);
+    } catch (error) {
+      console.error("Error fetching classrooms:", error);
+      setClassrooms([]);
+    }
+  };  
 
   // const login = async () => {
   //   try {
@@ -174,7 +207,7 @@ export default function Home() {
 
             {/* ปุ่ม Add Classroom */}
             <div className="flex justify-between items-center mt-6">
-              <h2 className="text-2xl font-semibold">Your Classrooms</h2>
+              <h2 className="text-2xl font-semibold text-black">Your Classrooms</h2>
               <Link
                 href="/create-classroom"
                 className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
@@ -206,7 +239,7 @@ export default function Home() {
                       }
                     />
                     <div className="px-4 pt-2 pb-4">
-                      <h3 className="text-lg font-semibold">
+                      <h3 className="text-lg font-semibold text-black">
                         {classroom.info.name || "No Name"}
                       </h3>
                       <p className="text-sm text-gray-600">
