@@ -77,7 +77,9 @@ export default function Navbar() {
   if (!user) return null;
 
   return (
-    <nav className="bg-black-300 text-black shadow-md border-b border-gray-200">
+    <nav className="bg-white text-black shadow-md border-b border-gray-200"
+    style={{ backgroundColor: "#222222", color: "#ffffff" }}
+    >
       {/* Container ที่ครอบคลุมเต็มความกว้าง */}
       <div className="w-full flex justify-between items-center h-20 px-10">
         {/* ข้อความ MyApp อยู่ด้านซ้าย */}
@@ -109,7 +111,7 @@ export default function Navbar() {
                 alt="Profile"
                 width={50}
                 height={50}
-                className="rounded-full border border-gray-300"
+                className="rounded-full border-2 border-gray-300"
               />
             )}
 
