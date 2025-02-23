@@ -28,8 +28,7 @@ export default function CheckinStudents() {
   const [students, setStudents] = useState<CheckinStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkinDate, setCheckinDate] = useState<string>("");
-  const [checkinCode, setCheckinCode] = useState<string>(""); // ✅ เพิ่ม state สำหรับ QR Code
-
+  const [checkinCode, setCheckinCode] = useState<string>(""); // ✅ เพิ่ม checkinCode
 
   useEffect(() => {
     if (cid && cno) {
@@ -86,8 +85,30 @@ export default function CheckinStudents() {
   };
 
   // ✅ แสดง QR Code ด้วย SweetAlert2
+  // const showQRCode = () => {
+  //   if (!checkinCode) {
+  //     MySwal.fire({
+  //       title: "Error",
+  //       text: "Check-in QR Code not found!",
+  //       icon: "error",
+  //     });
+  //     return;
+  //   }
+
+  //   MySwal.fire({
+  //     title: "Classroom QR Code",
+  //     html: (
+  //       <div className="flex justify-center">
+  //         {/* <QRCodeCanvas value={checkinCode} size={380} /> */}
+  //         <QRCodeCanvas value={cno || "Loading..."} size={75} />
+  //       </div>
+  //     ),
+  //     showCloseButton: true,
+  //     showConfirmButton: false,
+  //   });
+  // };
   const showQRCode = () => {
-    if (!checkinCode) {
+    if (!cno) {
       MySwal.fire({
         title: "Error",
         text: "Check-in QR Code not found!",
@@ -95,18 +116,19 @@ export default function CheckinStudents() {
       });
       return;
     }
-
+  
     MySwal.fire({
       title: "Classroom QR Code",
       html: (
         <div className="flex justify-center">
-          <QRCodeCanvas value={checkinCode} size={380} />
+          <QRCodeCanvas value={cno} size={380} />
         </div>
       ),
       showCloseButton: true,
       showConfirmButton: false,
     });
   };
+  
 
   return (
     <>
@@ -120,11 +142,11 @@ export default function CheckinStudents() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="text-lg font-semibold mb-4">
-                  <Link href={`/classroom/${cid}`} className="text-blue-600 hover:underline">
+                  <Link href={`/classroom/${cid}`} className="text-Black font-bold text-2xl">
                     Check-in
                   </Link>
                   {" > "}
-                  <span className="text-black font-bold">{checkinDate}</span>
+                  <span className="text-black font-bold text-2xl">{checkinDate}</span>
                 </div>
 
                 <h2 className="text-2xl font-bold mb-4">รายชื่อนักเรียนที่เช็คอิน</h2>
@@ -136,6 +158,8 @@ export default function CheckinStudents() {
 
                   {/* ✅ แสดง QR Code ขนาดเล็ก */}
                   {/* <QRCodeCanvas value={checkinCode || "Loading..."} size={75} /> */}
+                  {/* <QRCodeCanvas value={cno || "Loading..."} size={75} /> */}
+
 
                   {/* ✅ ปุ่มแสดง QR Code ขนาดใหญ่ */}
                   <button
