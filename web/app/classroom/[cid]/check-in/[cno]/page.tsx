@@ -116,7 +116,7 @@ export default function CheckinStudents() {
       });
       return;
     }
-  
+
     MySwal.fire({
       title: "Classroom QR Code",
       html: (
@@ -128,7 +128,7 @@ export default function CheckinStudents() {
       showConfirmButton: false,
     });
   };
-  
+
 
   return (
     <>
@@ -143,7 +143,7 @@ export default function CheckinStudents() {
               <div>
                 <div className="text-lg font-semibold mb-4">
                   <Link href={`/classroom/${cid}`} className="text-Black font-bold text-2xl">
-                    Check-in
+                    Dashboard
                   </Link>
                   {" > "}
                   <span className="text-black font-bold text-2xl">{checkinDate}</span>
@@ -187,7 +187,7 @@ export default function CheckinStudents() {
                     <th className="p-3 font-semibold">Remark</th>
                   </tr>
                 </thead>
-                <tbody>
+                {/* <tbody>
                   {students.length > 0 ? (
                     students.map((student, index) => (
                       <tr key={student.uid} className={index % 2 === 0 ? "bg-gray-200" : "bg-white"}>
@@ -207,7 +207,31 @@ export default function CheckinStudents() {
                       </td>
                     </tr>
                   )}
+                </tbody> */}
+                <tbody>
+                  {students.length > 0 ? (
+                    [...students]
+                      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) // ✅ เรียงลำดับตามเวลาเช็คอิน
+                      .map((student, index) => (
+                        <tr key={student.uid} className={index % 2 === 0 ? "bg-gray-200" : "bg-white"}>
+                          <td className="p-3">{index + 1}</td>
+                          <td className="p-3">{student.stdid}</td>
+                          <td className="p-3">{student.name}</td>
+                          <td className="p-3">{student.date}</td>
+                          <td className="p-3">{student.status === 1 ? "มาเรียน" : student.status === 2 ? "มาสาย" : "ขาดเรียน"}</td>
+                          <td className="p-3">{student.score}</td>
+                          <td className="p-3">{student.remark}</td>
+                        </tr>
+                      ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="text-center p-4 text-gray-500">
+                        No students found.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
+
               </table>
             )}
           </div>
