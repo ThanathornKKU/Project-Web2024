@@ -115,9 +115,8 @@ export default function ShowStudents() {
                   students.map((student, index) => (
                     <tr
                       key={student.id}
-                      className={`border-b ${
-                        index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
-                      }`}
+                      className={`border-b ${index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
+                        }`}
                     >
                       <td className="p-4 text-center">{index + 1}</td>
                       <td className="p-3 text-center">{student.stdid}</td>
