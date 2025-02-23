@@ -101,7 +101,7 @@ export default function CheckinStudents() {
                         </button>
                     </div>
                 </div>
-                    <table className="w-full border-collapse">
+                    <table className="w-full border-collapse text-left">
                         <thead>
                             <tr className="text-left border-b-2 border-black">
                                 <th className="p-3 font-semibold">ลำดับ</th>

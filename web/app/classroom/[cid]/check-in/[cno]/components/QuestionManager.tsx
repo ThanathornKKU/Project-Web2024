@@ -90,7 +90,7 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
 
 
             {/* ตารางแสดงคำถาม */}
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse text-left">
                 <thead>
                     <tr className="border-b border-gray-300 bg-gray-200">
                         <th className="p-2 border text-black">Question_No</th>
