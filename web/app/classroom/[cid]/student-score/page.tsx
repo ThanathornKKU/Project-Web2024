@@ -2,37 +2,67 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { db, auth } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc } from "firebase/firestore";
 import Navbar from "@/app/components/navbar";
 
 interface Student {
   stdid: string;
   name: string;
   id: string;
-  status: string;
+  totalScore: number; // ✅ เพิ่มฟิลด์สำหรับคะแนนรวม
 }
 
 export default function ShowStudents() {
   const { cid } = useParams<{ cid: string }>(); // ดึง `cid` จาก URL
-  const user = auth.currentUser;
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (cid) {
-      fetchStudents(cid);
+      fetchStudentScores(cid);
     }
   }, [cid]);
 
-  const fetchStudents = async (classroomId: string) => {
+  const fetchStudentScores = async (classroomId: string) => {
     setLoading(true);
     try {
       const studentsRef = collection(db, `classroom/${classroomId}/students`);
       const studentsSnapshot = await getDocs(studentsRef);
-      const studentsList = studentsSnapshot.docs.map((doc) => ({
+
+      let studentsList = studentsSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
+        totalScore: 0, // เพิ่มฟิลด์นี้เพื่อเก็บคะแนนรวม
       })) as Student[];
+
+      // ✅ ดึงข้อมูลเช็คชื่อทั้งหมด
+      const checkinsRef = collection(db, `classroom/${classroomId}/checkin`);
+      const checkinsSnapshot = await getDocs(checkinsRef);
+
+      for (const checkinDoc of checkinsSnapshot.docs) {
+        const checkinId = checkinDoc.id;
+        const checkinStudentsRef = collection(
+          db,
+          `classroom/${classroomId}/checkin/${checkinId}/students`
+        );
+        const checkinStudentsSnapshot = await getDocs(checkinStudentsRef);
+
+        checkinStudentsSnapshot.docs.forEach((studentDoc) => {
+          const studentData = studentDoc.data();
+          const studentId = studentData.stdid; // ใช้รหัสนักเรียนเป็น Key
+
+          // หา student ที่มี stdid ตรงกัน และเพิ่มคะแนน
+          studentsList = studentsList.map((student) =>
+            student.stdid === studentId
+              ? {
+                  ...student,
+                  totalScore:
+                    student.totalScore + Number(studentData.score || 0),
+                }
+              : student
+          );
+        });
+      }
 
       setStudents(studentsList);
     } catch (error) {
@@ -45,10 +75,7 @@ export default function ShowStudents() {
     <>
       <title>Scores | Classroom</title>
       <div className="min-h-screen bg-gray-100 p-6">
-        {/* Navigation Tabs */}
         <Navbar />
-
-        {/* ✅ เนื้อหาหลัก */}
         <div className="flex flex-col items-center mt-6">
           <div className="max-w-9xl w-full bg-white p-8 shadow-lg rounded-lg">
             <h2 className="text-2xl font-bold mb-6 text-center">
@@ -61,7 +88,9 @@ export default function ShowStudents() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="text-left border-b-2 border-black ">
-                    <th className="p-4 font-semibold text-center w-16">ลำดับ</th>
+                    <th className="p-4 font-semibold text-center w-16">
+                      ลำดับ
+                    </th>
                     <th className="p-3 font-semibold w-1/4 text-center">
                       รหัสนักศึกษา
                     </th>
@@ -76,14 +105,17 @@ export default function ShowStudents() {
                     students.map((student, index) => (
                       <tr
                         key={student.id}
-                        className={`border-b ${
-                          index % 2 === 0 ? "bg-gray-50" : "bg-gray-300"
-                        }`}
+                        className={
+                          index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
+                        }
                       >
                         <td className="p-4 text-center">{index + 1}</td>
                         <td className="p-3 text-center">{student.stdid}</td>
                         <td className="p-3">{student.name}</td>
-                        <td className="p-4 text-center">{student.status}</td>
+                        <td className="p-4 text-center">
+                          {student.totalScore}
+                        </td>{" "}
+                        {/* ✅ แสดงคะแนนรวม */}
                       </tr>
                     ))
                   ) : (

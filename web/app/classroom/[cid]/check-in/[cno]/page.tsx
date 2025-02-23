@@ -4,8 +4,8 @@ import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import Link from "next/link";
-import Navbar from "@/app/components/navbar";
-import NavbarSecon from "@/app/components/navbar-second";
+// import Navbar from "@/app/components/navbar";
+// import NavbarSecon from "@/app/components/navbar-second";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { QRCodeCanvas } from "qrcode.react"; // ✅ เพิ่ม import
@@ -53,10 +53,16 @@ export default function CheckinStudents() {
   };
 
   // ดึงข้อมูลนักเรียนที่เช็คอิน
-  const fetchCheckinStudents = async (classroomId: string, checkinNo: string) => {
+  const fetchCheckinStudents = async (
+    classroomId: string,
+    checkinNo: string
+  ) => {
     setLoading(true);
     try {
-      const studentsRef = collection(db, `classroom/${classroomId}/checkin/${checkinNo}/students`);
+      const studentsRef = collection(
+        db,
+        `classroom/${classroomId}/checkin/${checkinNo}/students`
+      );
       const studentsSnapshot = await getDocs(studentsRef);
       const studentsList = studentsSnapshot.docs.map((doc) => ({
         uid: doc.id,
@@ -117,6 +123,7 @@ export default function CheckinStudents() {
       return;
     }
 
+
     MySwal.fire({
       title: "Classroom QR Code",
       html: (
@@ -136,7 +143,6 @@ export default function CheckinStudents() {
       <div className="min-h-screen bg-gray-100 p-6">
         <NavbarSecond />
         <div className="flex flex-col items-center mt-6">
-
           <div className="max-w-9xl w-full bg-white p-8 shadow-lg rounded-lg">
             {/* ✅ Breadcrumb */}
             <div className="flex items-center justify-between mb-4">
@@ -146,10 +152,14 @@ export default function CheckinStudents() {
                     Dashboard
                   </Link>
                   {" > "}
-                  <span className="text-black font-bold text-2xl">{checkinDate}</span>
+                  <span className="text-black font-bold text-2xl">
+                    {checkinDate}
+                  </span>
                 </div>
 
-                <h2 className="text-2xl font-bold mb-4">รายชื่อนักเรียนที่เช็คอิน</h2>
+                <h2 className="text-2xl font-bold mb-4">
+                  รายชื่อนักเรียนที่เช็คอิน
+                </h2>
               </div>
               {/* ✅ QR Code Section */}
               <div className="flex">
@@ -159,7 +169,6 @@ export default function CheckinStudents() {
                   {/* ✅ แสดง QR Code ขนาดเล็ก */}
                   {/* <QRCodeCanvas value={checkinCode || "Loading..."} size={75} /> */}
                   {/* <QRCodeCanvas value={cno || "Loading..."} size={75} /> */}
-
 
                   {/* ✅ ปุ่มแสดง QR Code ขนาดใหญ่ */}
                   <button
