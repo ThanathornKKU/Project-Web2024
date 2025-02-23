@@ -126,7 +126,7 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
 
 
     return (
-        <div className="mt-6 p-6 bg-white shadow-lg rounded-lg border border-gray-200">
+        <div className="mt-6 p-8">
             {/* 🔹 ส่วนหัวของ Q&A */}
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">Q&A</h2>
