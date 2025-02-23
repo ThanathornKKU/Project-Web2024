@@ -157,7 +157,7 @@ export default function ClassroomPage() {
                 alt="Classroom"
                 width={400}
                 height={300}
-                className="w-full h-80 object-cover rounded-lg shadow-md"
+                className="w-full h-96 object-cover rounded-lg shadow-md"
               />
               <div className="absolute top-4 right-4 flex flex-col gap-2 w-[180px]">
                 {/* ✅ ปรับให้ปุ่ม Edit Classroom มีขนาดเต็ม */}
