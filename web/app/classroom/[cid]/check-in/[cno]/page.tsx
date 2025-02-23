@@ -4,8 +4,8 @@ import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import Link from "next/link";
-import Navbar from "@/app/components/navbar";
-import NavbarSecon from "@/app/components/navbar-second";
+// import Navbar from "@/app/components/navbar";
+// import NavbarSecon from "@/app/components/navbar-second";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { QRCodeCanvas } from "qrcode.react"; // ✅ เพิ่ม import
