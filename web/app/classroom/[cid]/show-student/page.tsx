@@ -5,7 +5,6 @@ import { db, auth } from "@/lib/firebase";
 import { collection, doc, getDocs, deleteDoc } from "firebase/firestore";
 import Swal from "sweetalert2";
 import { FiMinusCircle } from "react-icons/fi"; // ✅ ใช้ไอคอนตาม mockup
-import Link from "next/link";
 import Navbar from "@/app/components/navbar";
 
 interface Student {
@@ -54,13 +53,14 @@ export default function ShowStudents() {
     }
 
     const confirmDelete = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you really want to remove this student?",
+      title: "คุณกำลังจะลบรายชื่อนักเรียน!",
+      text: "ต้องการที่จะลบรายชื่อนักเรียนใช่หรือไม่",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, remove it!",
+      confirmButtonText: "ยืนยัน",
+      cancelButtonText: "ยกเลิก",
     });
 
     if (confirmDelete.isConfirmed) {

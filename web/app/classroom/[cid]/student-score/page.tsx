@@ -3,9 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { db, auth } from "@/lib/firebase";
 import { collection, doc, getDocs, deleteDoc } from "firebase/firestore";
-import Swal from "sweetalert2";
 import Navbar from "@/app/components/navbar";
-import Link from "next/link";
+
 
 interface Student {
   stdid: string;
@@ -43,45 +42,6 @@ export default function ShowStudents() {
     setLoading(false);
   };
 
-  const handleDelete = async (studentId: string) => {
-    if (!user) {
-      Swal.fire(
-        "Unauthorized!",
-        "You are not allowed to delete students.",
-        "error"
-      );
-      return;
-    }
-
-    const confirmDelete = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you really want to remove this student?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, remove it!",
-    });
-
-    if (confirmDelete.isConfirmed) {
-      try {
-        await deleteDoc(doc(db, `classroom/${cid}/students`, studentId));
-        setStudents((prev) =>
-          prev.filter((student) => student.id !== studentId)
-        );
-
-        Swal.fire("Deleted!", "Student has been removed.", "success");
-      } catch (error) {
-        Swal.fire(
-          "Error!",
-          "Failed to remove student. Please try again.",
-          "error"
-        );
-        console.error("Error deleting student:", error);
-      }
-    }
-  };
-
   return (
     <>
         <title>Students | Classroom</title>
@@ -101,7 +61,7 @@ export default function ShowStudents() {
                   <th className="p-3 font-semibold">ลำดับ</th> {/* ✅ ลำดับ */}
                   <th className="p-3 font-semibold">รหัสนักศึกษา</th>
                   <th className="p-3 font-semibold">ชื่อ - นามสกุล</th>
-                  <th className="p-3 font-semibold text-center">คะแนนการเช็คชื่อ</th>
+                  <th className="p-3 font-semibold text-center">คะแนนรวมการเช็คชื่อ</th>
                 </tr>
               </thead>
               <tbody>
