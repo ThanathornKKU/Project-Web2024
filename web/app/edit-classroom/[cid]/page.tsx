@@ -181,7 +181,7 @@ export default function EditClassroom() {
       <title>Edit Classroom</title>
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
         <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-center">แก้ไขห้องเรียน</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-center text-black">แก้ไขห้องเรียน</h2>
 
           {!isOwner ? (
             <p className="text-red-500 text-center">คุณไม่มีสิทธิ์แก้ไขห้องเรียนนี้</p>
@@ -194,7 +194,7 @@ export default function EditClassroom() {
                   name="code"
                   value={formData.code}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                  className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
                 />
               </div>
 
@@ -205,7 +205,7 @@ export default function EditClassroom() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                  className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
                 />
               </div>
 
@@ -216,13 +216,13 @@ export default function EditClassroom() {
                   name="room"
                   value={formData.room}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded-md mt-1"
+                  className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
                 />
               </div>
 
               <div className="mt-4">
                 <label className="block text-gray-700">รูปภาพห้องเรียน *</label>
-                <input type="file" accept="image/*" onChange={handleFileChange} className="w-full p-2 border border-gray-300 rounded-md mt-1" />
+                <input type="file" accept="image/*" onChange={handleFileChange} className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black" />
                 {formData.photo && <img src={formData.photo} alt="Preview" className="w-full mt-2 rounded-md shadow" />}
               </div>
 

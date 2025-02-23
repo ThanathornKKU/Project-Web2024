@@ -108,8 +108,8 @@ export default function ClassroomPage() {
                 src={classroom.info.photo || "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"}
                 alt="Classroom"
                 width={400}
-                height={200}
-                className="w-full h-80 object-cover rounded-lg shadow-md"
+                height={300}
+                className="w-full object-cover rounded-lg shadow-md"
               />
               <button className="absolute top-4 right-4 px-4 py-2 bg-yellow-400 text-white rounded-lg shadow-md hover:bg-yellow-500">
                 <Link href={`/edit-classroom/${cid}`}>
