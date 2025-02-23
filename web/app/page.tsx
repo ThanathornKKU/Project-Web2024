@@ -203,7 +203,8 @@ export default function Home() {
       ) : (
         <>
           <title>Home</title>
-          <div className="w-full max-w-5xl bg-white rounded-lg shadow-lg px-20 pt-4 pb-8">
+          <div className="w-full max-w-5xl bg-white rounded-lg shadow-lg px-8 pt-0 pb-8 lg:px-20 lg:pt-6 lg:pb-16 lg:mt-6"
+          >
 
             {/* ปุ่ม Add Classroom */}
             <div className="flex justify-between items-center mt-6">
