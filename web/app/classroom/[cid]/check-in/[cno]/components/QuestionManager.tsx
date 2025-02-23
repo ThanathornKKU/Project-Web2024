@@ -8,6 +8,8 @@ import Swal from "sweetalert2";
 
 export default function QuestionManager({ cid, cno }: { cid: string; cno: string }) {
     const [questions, setQuestions] = useState<any[]>([]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [newQuestion, setNewQuestion] = useState("");
 
     // 🔹 ดึงข้อมูลคำถามจาก Firestore
     useEffect(() => {
