@@ -56,6 +56,7 @@ export default function CheckinPage() {
               {" > "}
               <span className="text-black font-bold">{checkinDate}</span>
             </div>
+            
             <div className="bg-white text-lg mt-4 p-4 space-x-4">
               <span
                 className={`${isActive("checkin")} cursor-pointer`}

@@ -56,16 +56,21 @@ export default function CheckinQuestions() {
     <>
       <title>Check-in Question</title>
       <div className="min-h-screen bg-gray-100 p-6">
-        <Navbar />
 
         <div className="max-w-5xl mx-auto bg-white p-6 shadow-lg rounded-lg">
           {/* ✅ Breadcrumb */}
           <div className="text-lg font-semibold mb-4">
-            <Link href={`/classroom/${cid}`} className="text-blue-600 hover:underline">
+            <Link href={`/classroom/${cid}`} className="text-black">
+              Dashboard
+            </Link>
+            {" > "}
+            <Link href={`/classroom/${cid}/check-in/${cno}`} className="text-black">
               Check-in
             </Link>
             {" > "}
-            <span className="text-black font-bold">{checkinDate}</span>
+            <span className="text-black cursor-pointer">
+              {question?.question_text || "Loading..."}
+            </span>
           </div>
 
           <h2 className="text-2xl font-bold mb-4">คำถามที่ได้รับ</h2>
@@ -74,6 +79,9 @@ export default function CheckinQuestions() {
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2">
                 คำถามที่ {question.question_no}: {question.question_text}
+              </h3>
+              <h3 className="text-xl font-semibold mb-2">
+                คำถาม {question.question_no}: {question.question_text}
               </h3>
 
               <div className="bg-gray-100 p-4 rounded-lg shadow">
