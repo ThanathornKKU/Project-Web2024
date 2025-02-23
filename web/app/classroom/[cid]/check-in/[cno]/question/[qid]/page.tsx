@@ -73,15 +73,13 @@ export default function CheckinQuestions() {
             </span>
           </div>
 
-          <h2 className="text-2xl font-bold mb-4">คำถามที่ได้รับ</h2>
-
           {question ? (
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2">
-                คำถามที่ {question.question_no}: {question.question_text}
+                คำถามที่ {question.question_no}
               </h3>
-              <h3 className="text-xl font-semibold mb-2">
-                คำถาม {question.question_no}: {question.question_text}
+              <h3 className="text-xl font-semibold mb-4">
+                คำถาม : {question.question_text}
               </h3>
 
               <div className="bg-gray-100 p-4 rounded-lg shadow">
