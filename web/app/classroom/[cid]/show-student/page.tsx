@@ -83,6 +83,8 @@ export default function ShowStudents() {
   };
 
   return (
+    <>
+    <title>Edit Classroom</title>
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Navigation Tabs */}
       <Navbar />
@@ -128,5 +130,6 @@ export default function ShowStudents() {
         )}
       </div>
     </div>
+    </>
   );
 }

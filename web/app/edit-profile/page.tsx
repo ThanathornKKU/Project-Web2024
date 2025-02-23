@@ -107,7 +107,7 @@ export default function EditProfile() {
         text: "Your profile has been updated.",
         icon: "success",
         confirmButtonColor: "#4CAF50",
-        timer : 300000
+        timer: 300000
       });
 
       router.push("/"); // กลับไปหน้า Home
@@ -135,72 +135,73 @@ export default function EditProfile() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-center">
-          Edit Profile
-        </h2>
+    <>
+      <title>Edit Profile</title>
+      <div className="min-h-[90vh] flex items-center justify-center bg-gray-100 p-6">
+        <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-center">
+            Edit Profile
+          </h2>
+          <div className="flex flex-col items-center space-y-4">
+            <img
+              src={photo || "https://via.placeholder.com/100"}
+              alt="Profile"
+              className="w-24 h-24 rounded-full border border-gray-300 object-cover"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+              id="fileInput"
+            />
+            <label
+              htmlFor="fileInput"
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600"
+            >
+              Upload Photo
+            </label>
+          </div>
 
-        <div className="flex flex-col items-center space-y-4">
-          <img
-            src={photo || "https://via.placeholder.com/100"}
-            alt="Profile"
-            className="w-24 h-24 rounded-full border border-gray-300 object-cover"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-            id="fileInput"
-          />
-          <label
-            htmlFor="fileInput"
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600"
+          <div className="mt-4">
+            <label className="block text-gray-700">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md mt-1"
+            />
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-gray-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              readOnly
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-2 border border-gray-300 text-gray-400 rounded-md mt-1"
+            />
+          </div>
+
+          <button
+            onClick={handleSave}
+            className={`w-full mt-6 p-2 text-white rounded-lg ${saving
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+              }`}
+            disabled={saving}
           >
-            Upload Photo
-          </label>
-        </div>
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
 
-        <div className="mt-4">
-          <label className="block text-gray-700">Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1"
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-gray-700">Email</label>
-          <input
-            type="email"
-            value={email}
-            readOnly
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border border-gray-300 text-gray-400 rounded-md mt-1"
-          />
-        </div>
-
-        <button
-          onClick={handleSave}
-          className={`w-full mt-6 p-2 text-white rounded-lg ${
-            saving
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600"
-          }`}
-          disabled={saving}
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
-
-        <div className="mt-4 text-center">
-          <Link href="/" className="text-blue-500 hover:underline">
-            Back to Home
-          </Link>
+          <div className="mt-4 text-center">
+            <Link href="/" className="text-blue-500 hover:underline">
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

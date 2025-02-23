@@ -135,84 +135,86 @@ export default function CreateClassroom() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-center text-black">
-          สร้างห้องเรียน
-        </h2>
+    <>
+      <title>Create Classroom</title>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+        <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-center text-black">
+            สร้างห้องเรียน
+          </h2>
 
-        <div className="mt-4">
-          <label className="block text-gray-700">รหัสวิชา *</label>
-          <input
-            type="text"
-            name="code"
-            value={formData.code}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-gray-700">ชื่อวิชา *</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="block text-gray-700">ห้องเรียน *</label>
-          <input
-            type="text"
-            name="room"
-            value={formData.room}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
-          />
-        </div>
-
-        {/* ✅ อัปโหลดรูปภาพ และแสดงตัวอย่าง */}
-        <div className="mt-4">
-          <label className="block text-gray-700">รูปภาพห้องเรียน *</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
-          />
-          {formData.photo && (
-            <img
-              src={formData.photo}
-              alt="Preview"
-              className="w-full mt-2 rounded-md shadow"
+          <div className="mt-4">
+            <label className="block text-gray-700">รหัสวิชา *</label>
+            <input
+              type="text"
+              name="code"
+              value={formData.code}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
             />
-          )}
-        </div>
+          </div>
 
-        <button
-          onClick={handleSave}
-          className={`w-full mt-6 p-2 text-white rounded-lg ${
-            saving
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600"
-          }`}
-          disabled={saving}
-        >
-          {saving ? "Saving..." : "Create Classroom"}
-        </button>
+          <div className="mt-4">
+            <label className="block text-gray-700">ชื่อวิชา *</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
+            />
+          </div>
 
-        <div className="mt-4 text-center">
+          <div className="mt-4">
+            <label className="block text-gray-700">ห้องเรียน *</label>
+            <input
+              type="text"
+              name="room"
+              value={formData.room}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
+            />
+          </div>
+
+          {/* ✅ อัปโหลดรูปภาพ และแสดงตัวอย่าง */}
+          <div className="mt-4">
+            <label className="block text-gray-700">รูปภาพห้องเรียน *</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full p-2 border border-gray-300 rounded-md mt-1 text-black"
+            />
+            {formData.photo && (
+              <img
+                src={formData.photo}
+                alt="Preview"
+                className="w-full mt-2 rounded-md shadow"
+              />
+            )}
+          </div>
+
           <button
-            onClick={() => router.push("/")}
-            className="text-blue-500 hover:underline"
+            onClick={handleSave}
+            className={`w-full mt-6 p-2 text-white rounded-lg ${saving
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+              }`}
+            disabled={saving}
           >
-            Back to Home
+            {saving ? "Saving..." : "Create Classroom"}
           </button>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => router.push("/")}
+              className="text-blue-500 hover:underline"
+            >
+              Back to Home
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
