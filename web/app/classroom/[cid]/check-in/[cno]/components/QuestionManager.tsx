@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
 import Link from "next/link";
 import { FaEye, FaTrash, FaRegQuestionCircle } from "react-icons/fa";
 import Swal from "sweetalert2";
@@ -11,18 +11,21 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
 
     // 🔹 ดึงข้อมูลคำถามจาก Firestore
     useEffect(() => {
-        const fetchQuestions = async () => {
-            const qRef = collection(db, `classroom/${cid}/checkin/${cno}/question`);
-            const snapshot = await getDocs(qRef);
-            const data = snapshot.docs.map((doc) => ({
-                qid: doc.id,
-                ...doc.data(),
-            }));
-            setQuestions(data);
-        };
-
         fetchQuestions();
-    }, [cid, cno]);
+    }, []);
+
+    const fetchQuestions = async () => {
+        const qRef = collection(db, `classroom/${cid}/checkin/${cno}/question`);
+        const snapshot = await getDocs(query(qRef, orderBy("question_no", "asc")));
+        const data = snapshot.docs.map((doc) => ({
+            qid: doc.id,
+            ...doc.data(),
+            question_no: Number(doc.data().question_no) || 0, // ✅ แปลงเป็น Number ป้องกันปัญหาการเรียงผิด
+        }));
+
+        // ✅ ตรวจสอบการเรียงก่อน set state
+        setQuestions(data.sort((a, b) => a.question_no - b.question_no));
+    };
 
     // 🔹 ฟังก์ชันเพิ่มคำถาม
     const handleAddQuestion = async () => {
@@ -30,34 +33,45 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
             title: "สร้างคำถามใหม่",
             input: "textarea",
             inputPlaceholder: "กรอกคำถามที่ต้องการ...",
-            inputAttributes: {
-                "aria-label": "กรอกคำถามที่ต้องการ"
-            },
             showCancelButton: true,
             confirmButtonText: "บันทึก",
             cancelButtonText: "ยกเลิก",
             confirmButtonColor: "#28a745",
             cancelButtonColor: "#6c757d",
             inputValidator: (value) => {
-                if (!value.trim()) {
-                    return "กรุณากรอกคำถาม!";
-                }
+                if (!value.trim()) return "กรุณากรอกคำถาม!";
             }
         });
 
         if (newQuestion) {
-            const qRef = collection(db, `classroom/${cid}/checkin/${cno}/question`);
-            const docRef = await addDoc(qRef, { question_text: newQuestion, question_show: false });
-            setQuestions([...questions, { qid: docRef.id, question_text: newQuestion, question_show: false }]);
+            try {
+                // ✅ หา `question_no` ล่าสุด (ถ้าไม่มีให้เริ่มที่ 1)
+                const lastQuestionNo = questions.length > 0
+                    ? Math.max(...questions.map(q => Number(q.question_no) || 0)) 
+                    : 0;
 
-            // ✅ แสดง Alert ว่าเพิ่มสำเร็จ
-            Swal.fire({
-                title: "บันทึกสำเร็จ!",
-                text: "คำถามถูกเพิ่มเรียบร้อย",
-                icon: "success",
-                confirmButtonColor: "#3085d6",
-                confirmButtonText: "ตกลง",
-            });
+                const newQuestionNo = lastQuestionNo + 1;
+
+                // ✅ เพิ่มคำถามใหม่ (เก็บค่าเป็น Number)
+                const qRef = collection(db, `classroom/${cid}/checkin/${cno}/question`);
+                const docRef = await addDoc(qRef, {
+                    question_no: newQuestionNo,
+                    question_text: newQuestion,
+                    question_show: false
+                });
+
+                // ✅ อัปเดต UI และเรียงข้อมูลใหม่
+                setQuestions(prev => [...prev, { 
+                    qid: docRef.id, 
+                    question_no: newQuestionNo, 
+                    question_text: newQuestion, 
+                    question_show: false 
+                }].sort((a, b) => a.question_no - b.question_no));
+                
+            } catch (error) {
+                console.error("Error adding question:", error);
+                Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถเพิ่มคำถามได้", "error");
+            }
         }
     };
 
@@ -96,7 +110,7 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
 
     // 🔹 ฟังก์ชันลบคำถาม
     const handleDelete = async (qid: string) => {
-        Swal.fire({
+        const result = await Swal.fire({
             title: "ยืนยันการลบ",
             text: "คุณแน่ใจหรือไม่ว่าต้องการลบคำถามนี้?",
             icon: "warning",
@@ -105,23 +119,35 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
             cancelButtonColor: "#6c757d",
             confirmButtonText: "ลบเลย",
             cancelButtonText: "ยกเลิก",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                // ✅ ลบคำถามเมื่อกด "ลบ"
-                const qRef = doc(db, `classroom/${cid}/checkin/${cno}/question`, qid);
-                await deleteDoc(qRef);
-                setQuestions(questions.filter((q) => q.qid !== qid));
-
-                // ✅ แสดง Alert ว่าลบสำเร็จ
-                Swal.fire({
-                    title: "ลบสำเร็จ",
-                    text: "คำถามถูกลบออกจากระบบแล้ว",
-                    icon: "success",
-                    confirmButtonColor: "#3085d6",
-                    confirmButtonText: "ตกลง",
-                });
-            }
         });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            // ✅ ลบคำถามที่เลือก
+            const qRef = doc(db, `classroom/${cid}/checkin/${cno}/question/${qid}`);
+            await deleteDoc(qRef);
+
+            // ✅ อัปเดต UI (เอาอันที่ลบออกไปก่อน)
+            let updatedQuestions = questions.filter(q => q.qid !== qid);
+
+            // ✅ รีเซ็ตค่า `question_no` ให้เรียงลำดับใหม่
+            const updatePromises = updatedQuestions.map(async (q, index) => {
+                const newQuestionNo = index + 1; // เริ่มจาก 1 ใหม่
+                const qDocRef = doc(db, `classroom/${cid}/checkin/${cno}/question/${q.qid}`);
+                await updateDoc(qDocRef, { question_no: newQuestionNo });
+
+                return { ...q, question_no: newQuestionNo };
+            });
+
+            // ✅ รอให้ทุกคำถามถูกอัปเดตก่อน
+            updatedQuestions = await Promise.all(updatePromises);
+            setQuestions(updatedQuestions.sort((a, b) => a.question_no - b.question_no));
+
+        } catch (error) {
+            console.error("Error deleting question:", error);
+            Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถลบคำถามได้", "error");
+        }
     };
 
 
@@ -151,7 +177,7 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
                         <tbody>
                             {questions.map((q, index) => (
                                 <tr key={q.qid} className="even:bg-gray-100">
-                                    <td className="p-3 text-center text-black">{index + 1}</td>
+                                    <td className="p-3 text-center text-black">{q.question_no}</td>
                                     <td className="p-3 text-black">{q.question_text}</td>
                                     <td className="p-3 text-center text-black">
                                         <input
