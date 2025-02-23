@@ -166,12 +166,12 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
 
             {/* เช็คว่ามีคำถามหรือไม่ */}
             {questions.length > 0 ? (
-                <div className="mx-6">
+                <div className="text-left">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="border-b-2 border-gray-500">
-                                <th className="p-3 text-left text-black">Question_No</th>
-                                <th className="p-3 text-left text-black">คำถาม</th>
+                                <th className="p-1 text-left text-black">Question_No</th>
+                                <th className="p-3  text-black">คำถาม</th>
                                 <th className="p-3 text-center text-black">Show Questions</th>
                                 <th className="p-3 text-center text-black">Actions</th>
                             </tr>
@@ -179,7 +179,7 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
                         <tbody>
                             {questions.map((q, index) => (
                                 <tr key={q.qid} className="even:bg-gray-100">
-                                    <td className="p-3 text-center text-black">{q.question_no}</td>
+                                    <td className="p-3 text-left text-black">{q.question_no}</td>
                                     <td className="p-3 text-black">{q.question_text}</td>
                                     <td className="p-3 text-center text-black">
                                         <input
