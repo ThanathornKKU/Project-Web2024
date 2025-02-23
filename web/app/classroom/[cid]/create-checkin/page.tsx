@@ -78,7 +78,7 @@ export default function CreateCheckinPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
         <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
           {/* ปุ่มย้อนกลับ */}
-          <Link href={`/app/classroom/${cid}`} className="text-green-600 flex items-center mb-4">
+          <Link href={`/classroom/${cid}`} className="text-green-600 flex items-center mb-4">
             ← Back
           </Link>
 
@@ -119,15 +119,6 @@ export default function CreateCheckinPage() {
           >
             {saving ? "Saving..." : "Create Check-in"}
           </button>
-
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => router.push(`/app/classroom/${cid}`)}
-              className="text-blue-500 hover:underline"
-            >
-              Back to Classroom
-            </button>
-          </div>
         </div>
       </div>
     </>

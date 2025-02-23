@@ -213,25 +213,24 @@ export default function ClassroomPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-200">
-                  <th className="p-3">No</th>
-                  <th className="p-3">Code</th>
-                  <th className="p-3">Date</th>
-                  <th className="p-3">Attending</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3">Action</th>
-                  <th className="p-3">View</th>
+                  <th className="p-3 text-center">No</th>
+                  <th className="p-3 text-center">Code</th>
+                  <th className="p-3 text-center">Date</th>
+                  <th className="p-3 text-center">Attending</th>
+                  <th className="p-3 text-center">Status</th>
+                  <th className="p-3 text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {checkins.length > 0 ? (
                   checkins.map((checkin, index) => (
                     <tr key={checkin.id} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                      <td className="p-3">{index + 1}</td>
-                      <td className="p-3">{checkin.code}</td>
-                      <td className="p-3">{checkin.date}</td>
-                      <td className="p-3">{checkin.attending}</td>
+                      <td className="p-3 text-center">{index + 1}</td>
+                      <td className="p-3 text-center">{checkin.code}</td>
+                      <td className="p-3 text-center">{checkin.date}</td>
+                      <td className="p-3 text-center">{checkin.attending}</td>
                       {/* ✅ ปุ่ม Toggle เปลี่ยนสถานะ */}
-                      <td className="p-3">
+                      <td className="p-3 text-center">
                         <div className="inline-flex rounded-full border border-black bg-gray-200 overflow-hidden">
                           {["ปิด", "กำลัง", "เช็คสาย"].map((label, idx) => (
                             <button
@@ -249,12 +248,10 @@ export default function ClassroomPage() {
                           ))}
                         </div>
                       </td>
-                      <td className="p-3">
-                        <button onClick={() => handleDeleteCheckin(checkin.id)} className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">ลบ</button>
-                      </td>
-                      <td className="p-3">
+                      <td className="p-3 text-center">
+                        <button onClick={() => handleDeleteCheckin(checkin.id)} className="me-1 px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">ลบ</button>
                         <Link href={`/classroom/${cid}/check-in/${checkin.id}`}>
-                          <button className="px-2 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600">View</button>
+                          <button className=" ms-1 px-2 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600">View</button>
                         </Link>
                       </td>
                     </tr>
