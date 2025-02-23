@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { db, auth } from "@/lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc, writeBatch } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
@@ -94,7 +94,7 @@ export default function CreateClassroom() {
       });
       return;
     }
-
+  
     if (!formData.code || !formData.name || !formData.photo || !formData.room) {
       Swal.fire({
         title: "กรุณากรอกข้อมูลให้ครบถ้วน",
@@ -104,22 +104,44 @@ export default function CreateClassroom() {
       });
       return;
     }
-
+  
     setSaving(true);
     try {
+      const batch = writeBatch(db); // ✅ ใช้ batch สำหรับ transaction
+  
+      // 🔹 1) สร้าง Classroom ใหม่ใน Firestore
       const classroomRef = collection(db, "classroom");
-      await addDoc(classroomRef, {
+      const classroomDoc = await addDoc(classroomRef, {
         owner: user.uid,
-        info: formData,
+        info: {
+          code: formData.code,
+          name: formData.name,
+          photo: formData.photo,
+          room: formData.room,
+        },
       });
-
+  
+      const cid = classroomDoc.id; // ✅ ดึง classroom ID
+  
+      // 🔹 2) อัปเดตข้อมูลผู้ใช้ใน `/users/{uid}/classroom/{cid}`
+      const userClassroomRef = doc(db, `users/${user.uid}`);
+      batch.set(userClassroomRef, {
+        classroom: {
+          [cid]: {
+            status: 1, // ✅ 1 = อาจารย์
+          },
+        },
+      }, { merge: true });
+  
+      await batch.commit(); // ✅ บันทึกทุกอย่างพร้อมกัน
+  
       Swal.fire({
         title: "สร้างห้องเรียนเสร็จเรียบร้อย!",
         text: "",
         icon: "success",
         confirmButtonColor: "#4CAF50",
       });
-
+  
       router.push("/");
     } catch (error) {
       Swal.fire({
@@ -130,7 +152,7 @@ export default function CreateClassroom() {
       });
       console.error("Error creating classroom:", error);
     }
-
+  
     setSaving(false);
   };
 
