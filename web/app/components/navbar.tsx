@@ -17,12 +17,12 @@ export default function Navbar() {
       <Link href={`/classroom/${cid}`}>
         <span className={isActive(`/classroom/${cid}`)}>Dashboard</span>
       </Link>
-      <Link href={`/classroom/${cid}/qna`}>
+      {/* <Link href={`/classroom/${cid}/qna`}>
         <span className={isActive(`/classroom/${cid}/qna`)}>Q&A</span>
       </Link>
       <Link href={`/classroom/${cid}/check-in`}>
         <span className={isActive(`/classroom/${cid}/check-in`)}>Check-in</span>
-      </Link>
+      </Link> */}
       <Link href={`/classroom/${cid}/student-score`}>
         <span className={isActive(`/classroom/${cid}/student-score`)}>Scores</span>
       </Link>

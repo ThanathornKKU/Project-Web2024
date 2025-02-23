@@ -5,7 +5,6 @@ import { db, auth } from "@/lib/firebase";
 import { collection, doc, getDocs, deleteDoc } from "firebase/firestore";
 import Swal from "sweetalert2";
 import { FiMinusCircle } from "react-icons/fi"; // ✅ ใช้ไอคอนตาม mockup
-import Link from "next/link";
 import Navbar from "@/app/components/navbar";
 
 interface Student {
@@ -84,52 +83,58 @@ export default function ShowStudents() {
 
   return (
     <>
-    <title>Edit Classroom</title>
-    <div className="min-h-screen bg-gray-100 p-6">
-      {/* Navigation Tabs */}
-      <Navbar />
+      <title>Show Students | Classroom</title>
+      <div className="min-h-screen bg-gray-100 p-6">
+        {/* ✅ ใช้ Navbar เหมือนกันทุกหน้า */}
+        <Navbar />
 
-      <div className="max-w-4xl mx-auto bg-white p-6 shadow-lg rounded-lg ">
-        <h2 className="text-2xl font-bold mb-4">รายชื่อนักศึกษา</h2>
+        <div className="max-w-9xl mx-auto bg-white p-6 shadow-lg rounded-lg mt-6">
+          <h2 className="text-2xl font-bold mb-6 text-center">รายชื่อนักศึกษา</h2>
 
-        {loading ? (
-          <p className="text-gray-600">Loading students...</p>
-        ) : (
+          {loading ? (
+            <p className="text-gray-600">Loading students...</p>
+          ) : (
             <table className="w-full border-collapse">
-            <thead >
-              <tr className="text-left border-b-2 border-black">
-                <th className="p-3 font-semibold">ลำดับ</th> {/* ✅ ลำดับ */}
-                <th className="p-3 font-semibold">รหัสนักศึกษา</th>
-                <th className="p-3 font-semibold">ชื่อ - นามสกุล</th>
-                <th className="p-3 font-semibold text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.length > 0 ? (
-                students.map((student, index) => (
-                  <tr key={student.id} className={index % 2 === 0 ? "bg-gray-200" : "bg-white"}>
-                    <td className="p-3">{index + 1}</td> {/* ✅ ลำดับอัตโนมัติ */}
-                    <td className="p-3">{student.stdid}</td>
-                    <td className="p-3">{student.name}</td>
-                    <td className="p-3 text-center">
-                      <button onClick={() => handleDelete(student.id)} className="text-gray-600 hover:text-red-500 transition">
-                        <FiMinusCircle size={23} />
-                      </button>
+              <thead>
+                <tr className="text-left border-b-2 border-black ">
+                  <th className="p-4 font-semibold text-center w-16">ลำดับ</th>
+                  <th className="p-3 font-semibold w-1/4 text-center">รหัสนักศึกษา</th>
+                  <th className="p-3 font-semibold w-1/2">ชื่อ - นามสกุล</th>
+                  <th className="p-4 font-semibold text-center w-1/4">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.length > 0 ? (
+                  students.map((student, index) => (
+                    <tr
+                      key={student.id}
+                      className={`border-b ${index % 2 === 0 ? "bg-gray-50" : "bg-gray-300"}`}
+                    >
+                      <td className="p-4 text-center">{index + 1}</td>
+                      <td className="p-3 text-center">{student.stdid}</td>
+                      <td className="p-3">{student.name}</td>
+                      <td className="p-4 text-center">
+                        <button
+                          onClick={() => handleDelete(student.id)}
+                          className="text-gray-600 hover:text-red-500 transition"
+                        >
+                          <FiMinusCircle size={23} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="text-center p-6 text-gray-500">
+                      No students found.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="text-center p-4 text-gray-500">
-                    No students found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>          
-        )}
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }
