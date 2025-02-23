@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { doc, getDoc, collection, query, onSnapshot, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -106,6 +106,18 @@ export default function ClassroomPage() {
     return () => unsubscribe();
   };
 
+  // ✅ เปลี่ยนสถานะของ Check-in
+  const toggleCheckinStatus = async (checkinId: string, newStatus: number) => {
+    try {
+      await updateDoc(doc(db, "classroom", cid as string, "checkin", checkinId), {
+        status: newStatus, // ✅ อัปเดตสถานะเป็นค่าของปุ่มที่กด
+      });
+    } catch (error) {
+      console.error("Error updating check-in status:", error);
+      Swal.fire("Error!", "ไม่สามารถเปลี่ยนสถานะได้", "error");
+    }
+  };
+
   const showQRCode = () => {
     MySwal.fire({
       title: "Classroom QR Code",
@@ -157,7 +169,7 @@ export default function ClassroomPage() {
                 alt="Classroom"
                 width={400}
                 height={300}
-                className="w-full h-80 object-cover rounded-lg shadow-md"
+                className="w-full h-96 object-cover rounded-lg shadow-md"
               />
               <div className="absolute top-4 right-4 flex flex-col gap-2 w-[180px]">
                 {/* ✅ ปรับให้ปุ่ม Edit Classroom มีขนาดเต็ม */}
@@ -218,7 +230,25 @@ export default function ClassroomPage() {
                       <td className="p-3">{checkin.code}</td>
                       <td className="p-3">{checkin.date}</td>
                       <td className="p-3">{checkin.attending}</td>
-                      <td className="p-3">{checkin.status === 0 ? "ยังไม่เริ่ม" : checkin.status === 1 ? "กำลังเช็คชื่อ" : "เสร็จแล้ว"}</td>
+                      {/* ✅ ปุ่ม Toggle เปลี่ยนสถานะ */}
+                      <td className="p-3">
+                        <div className="inline-flex rounded-full border border-black bg-gray-200 overflow-hidden">
+                          {["ปิด", "กำลัง", "เช็คสาย"].map((label, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                if (checkin.status !== idx) {
+                                  toggleCheckinStatus(checkin.id, idx); // ✅ เปลี่ยนเป็นค่า idx ที่ถูกต้อง
+                                }
+                              }}
+                              className={`px-4 py-1 text-sm transition-all duration-200 flex-1 ${checkin.status === idx ? "bg-gray-500 text-white" : "bg-white text-black"
+                                }`}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </td>
                       <td className="p-3">
                         <button onClick={() => handleDeleteCheckin(checkin.id)} className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">ลบ</button>
                       </td>
