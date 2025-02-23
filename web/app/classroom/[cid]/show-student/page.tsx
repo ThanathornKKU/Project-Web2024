@@ -70,7 +70,7 @@ export default function ShowStudents() {
           prev.filter((student) => student.id !== studentId)
         );
 
-        Swal.fire("Deleted!", "Student has been removed.", "success");
+        Swal.fire("ลบสำเร็จ.!", "รายชื่อนักเรียนถูกลบออกจากห้องเรียน", "success");
       } catch (error) {
         Swal.fire(
           "Error!",
