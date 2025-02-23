@@ -14,7 +14,7 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
         if (cid && cno) {
             fetchQuestions();
         }
-    }, [cid, cno]);    
+    }, [cid, cno]);
 
     const fetchQuestions = async () => {
         const qRef = collection(db, `classroom/${cid}/checkin/${cno}/question`);
@@ -49,7 +49,7 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
             try {
                 // ✅ หา `question_no` ล่าสุด (ถ้าไม่มีให้เริ่มที่ 1)
                 const lastQuestionNo = questions.length > 0
-                    ? Math.max(...questions.map(q => Number(q.question_no) || 0)) 
+                    ? Math.max(...questions.map(q => Number(q.question_no) || 0))
                     : 0;
 
                 const newQuestionNo = lastQuestionNo + 1;
@@ -63,13 +63,13 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
                 });
 
                 // ✅ อัปเดต UI และเรียงข้อมูลใหม่
-                setQuestions(prev => [...prev, { 
-                    qid: docRef.id, 
-                    question_no: newQuestionNo, 
-                    question_text: newQuestion, 
-                    question_show: false 
+                setQuestions(prev => [...prev, {
+                    qid: docRef.id,
+                    question_no: newQuestionNo,
+                    question_text: newQuestion,
+                    question_show: false
                 }].sort((a, b) => a.question_no - b.question_no));
-                
+
             } catch (error) {
                 console.error("Error adding question:", error);
                 Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถเพิ่มคำถามได้", "error");
@@ -83,10 +83,14 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
 
         // 📌 ดึงคำถามทั้งหมดจาก Firestore
         const snapshot = await getDocs(qCollection);
-        const allQuestions = snapshot.docs.map((doc) => ({
+        let allQuestions = snapshot.docs.map((doc) => ({
             qid: doc.id,
             ...doc.data(),
+            question_no: Number(doc.data().question_no) || 0, // ✅ แปลงให้แน่ใจว่าเป็น Number
         }));
+
+        // 🔹 กรองคำถามที่ไม่มี `question_no` ออก (ข้อมูลเก่า)
+        allQuestions = allQuestions.filter(q => q.question_no !== 0);
 
         // 🔹 ปิดคำถามอื่นๆ ทั้งหมดก่อน
         const updatePromises = allQuestions.map(async (q) => {
@@ -103,11 +107,15 @@ export default function QuestionManager({ cid, cno }: { cid: string; cno: string
         // ✅ ทำการอัปเดตทั้งหมดพร้อมกัน
         await Promise.all(updatePromises);
 
-        // ✅ อัปเดต state ใน React
-        setQuestions(allQuestions.map((q) => ({
-            ...q,
-            question_show: q.qid === qid ? visible : false,
-        })));
+        // ✅ อัปเดต state และเรียง `question_no` ใหม่
+        setQuestions(
+            allQuestions
+                .map(q => ({
+                    ...q,
+                    question_show: q.qid === qid ? visible : false,
+                }))
+                .sort((a, b) => a.question_no - b.question_no) // ✅ เรียงตาม question_no ใหม่
+        );
     };
 
     // 🔹 ฟังก์ชันลบคำถาม
