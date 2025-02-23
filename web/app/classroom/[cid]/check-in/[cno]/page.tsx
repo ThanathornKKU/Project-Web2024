@@ -53,10 +53,16 @@ export default function CheckinStudents() {
   };
 
   // ดึงข้อมูลนักเรียนที่เช็คอิน
-  const fetchCheckinStudents = async (classroomId: string, checkinNo: string) => {
+  const fetchCheckinStudents = async (
+    classroomId: string,
+    checkinNo: string
+  ) => {
     setLoading(true);
     try {
-      const studentsRef = collection(db, `classroom/${classroomId}/checkin/${checkinNo}/students`);
+      const studentsRef = collection(
+        db,
+        `classroom/${classroomId}/checkin/${checkinNo}/students`
+      );
       const studentsSnapshot = await getDocs(studentsRef);
       const studentsList = studentsSnapshot.docs.map((doc) => ({
         uid: doc.id,
@@ -116,7 +122,7 @@ export default function CheckinStudents() {
       });
       return;
     }
-  
+
     MySwal.fire({
       title: "Classroom QR Code",
       html: (
@@ -128,7 +134,6 @@ export default function CheckinStudents() {
       showConfirmButton: false,
     });
   };
-  
 
   return (
     <>
@@ -136,20 +141,26 @@ export default function CheckinStudents() {
       <div className="min-h-screen bg-gray-100 p-6">
         <NavbarSecond />
         <div className="flex flex-col items-center mt-6">
-
           <div className="max-w-9xl w-full bg-white p-8 shadow-lg rounded-lg">
             {/* ✅ Breadcrumb */}
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="text-lg font-semibold mb-4">
-                  <Link href={`/classroom/${cid}`} className="text-Black font-bold text-2xl">
+                  <Link
+                    href={`/classroom/${cid}`}
+                    className="text-Black font-bold text-2xl"
+                  >
                     Check-in
                   </Link>
                   {" > "}
-                  <span className="text-black font-bold text-2xl">{checkinDate}</span>
+                  <span className="text-black font-bold text-2xl">
+                    {checkinDate}
+                  </span>
                 </div>
 
-                <h2 className="text-2xl font-bold mb-4">รายชื่อนักเรียนที่เช็คอิน</h2>
+                <h2 className="text-2xl font-bold mb-4">
+                  รายชื่อนักเรียนที่เช็คอิน
+                </h2>
               </div>
               {/* ✅ QR Code Section */}
               <div className="flex">
@@ -159,7 +170,6 @@ export default function CheckinStudents() {
                   {/* ✅ แสดง QR Code ขนาดเล็ก */}
                   {/* <QRCodeCanvas value={checkinCode || "Loading..."} size={75} /> */}
                   {/* <QRCodeCanvas value={cno || "Loading..."} size={75} /> */}
-
 
                   {/* ✅ ปุ่มแสดง QR Code ขนาดใหญ่ */}
                   <button
@@ -190,12 +200,21 @@ export default function CheckinStudents() {
                 <tbody>
                   {students.length > 0 ? (
                     students.map((student, index) => (
-                      <tr key={student.uid} className={index % 2 === 0 ? "bg-gray-200" : "bg-white"}>
+                      <tr
+                        key={student.uid}
+                        className={index % 2 === 0 ? "bg-gray-200" : "bg-white"}
+                      >
                         <td className="p-3">{index + 1}</td>
                         <td className="p-3">{student.stdid}</td>
                         <td className="p-3">{student.name}</td>
                         <td className="p-3">{student.date}</td>
-                        <td className="p-3">{student.status === 1 ? "มาเรียน" : student.status === 2 ? "มาสาย" : "ขาดเรียน"}</td>
+                        <td className="p-3">
+                          {student.status === 1
+                            ? "มาเรียน"
+                            : student.status === 2
+                            ? "มาสาย"
+                            : "ขาดเรียน"}
+                        </td>
                         <td className="p-3">{student.score}</td>
                         <td className="p-3">{student.remark}</td>
                       </tr>

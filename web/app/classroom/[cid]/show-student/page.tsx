@@ -90,7 +90,9 @@ export default function ShowStudents() {
         <Navbar />
 
         <div className="max-w-9xl mx-auto bg-white p-6 shadow-lg rounded-lg mt-6">
-          <h2 className="text-2xl font-bold mb-6 text-center">รายชื่อนักศึกษา</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            รายชื่อนักศึกษา
+          </h2>
 
           {loading ? (
             <p className="text-gray-600">Loading students...</p>
@@ -99,9 +101,13 @@ export default function ShowStudents() {
               <thead>
                 <tr className="text-left border-b-2 border-black ">
                   <th className="p-4 font-semibold text-center w-16">ลำดับ</th>
-                  <th className="p-3 font-semibold w-1/4 text-center">รหัสนักศึกษา</th>
+                  <th className="p-3 font-semibold w-1/4 text-center">
+                    รหัสนักศึกษา
+                  </th>
                   <th className="p-3 font-semibold w-1/2">ชื่อ - นามสกุล</th>
-                  <th className="p-4 font-semibold text-center w-1/4">Action</th>
+                  <th className="p-4 font-semibold text-center w-1/4">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -109,7 +115,9 @@ export default function ShowStudents() {
                   students.map((student, index) => (
                     <tr
                       key={student.id}
-                      className={`border-b ${index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"}`}
+                      className={`border-b ${
+                        index % 2 === 0 ? "bg-gray-100" : "bg-gray-300"
+                      }`}
                     >
                       <td className="p-4 text-center">{index + 1}</td>
                       <td className="p-3 text-center">{student.stdid}</td>
