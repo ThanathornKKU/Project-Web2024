@@ -78,7 +78,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white text-black shadow-md border-b border-gray-200"
-    style={{ backgroundColor: "#222222", color: "#ffffff" }}
+      style={{ backgroundColor: "#222222", color: "#ffffff" }}
     >
       {/* Container ที่ครอบคลุมเต็มความกว้าง */}
       <div className="w-full flex justify-between items-center h-20 px-10">
@@ -106,13 +106,15 @@ export default function Navbar() {
               className="rounded-full border border-gray-300"
             /> */}
             {userProfile.photo && (
-              <Image
-                src={userProfile.photo}
-                alt="Profile"
-                width={50}
-                height={50}
-                className="rounded-full border-2 border-gray-300"
-              />
+              <div className="w-12 h-12 rounded-full border-1 border-white shadow-md ring-2 ring-gray-300 overflow-hidden">
+                <Image
+                  src={userProfile.photo}
+                  alt="Profile"
+                  width={50}
+                  height={50}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             )}
 
           </button>

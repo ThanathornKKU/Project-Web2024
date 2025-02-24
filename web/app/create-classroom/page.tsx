@@ -118,6 +118,8 @@ export default function CreateClassroom() {
           name: formData.name,
           photo: formData.photo,
           room: formData.room,
+          score: 1,
+          score_late: 0.5,
         },
       });
   

@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { doc, getDoc, collection, query, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, onSnapshot, deleteDoc, updateDoc, getDocs, writeBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -48,6 +48,8 @@ export default function ClassroomPage() {
   const { cid } = useParams();
   const [classroom, setClassroom] = useState<Classroom | null>(null);
   const [checkins, setCheckins] = useState<CheckinData[]>([]);
+  const [score, setScore] = useState<number>(0);
+  const [scoreLate, setScoreLate] = useState<number>(0);
 
   useEffect(() => {
     if (cid) {
@@ -64,6 +66,8 @@ export default function ClassroomPage() {
       if (docSnap.exists()) {
         const data = docSnap.data() as Omit<Classroom, "id">;
         setClassroom({ ...data, id: docSnap.id });
+        setScore(data.info.score || 0);
+        setScoreLate(data.info.score_late || 0);
       } else {
         console.error("No such classroom!");
       }
@@ -155,6 +159,75 @@ export default function ClassroomPage() {
     }
   };
 
+  // ✅ ฟังก์ชันอัปเดต Score และ Score Late ไปยัง Firestore
+  const updateScore = async () => {
+    if (!cid) return;
+  
+    try {
+      const classroomRef = doc(db, "classroom", cid as string);
+  
+      // ✅ 1) อัปเดตคะแนนเข้าเรียนที่ classroom
+      await updateDoc(classroomRef, {
+        "info.score": score,
+        "info.score_late": scoreLate,
+      });
+  
+      // ✅ 2) ดึง check-in ทั้งหมดใน classroom
+      const checkinRef = collection(db, "classroom", cid as string, "checkin");
+      const checkinSnapshot = await getDocs(checkinRef);
+  
+      if (checkinSnapshot.empty) {
+        console.log("⚠️ No check-in data found.");
+        return;
+      }
+  
+      // ✅ 3) ใช้ batch สำหรับอัปเดตทุก check-in พร้อมกัน
+      const batch = writeBatch(db);
+      console.log("🟢 Fetching check-in records...");
+  
+      for (const checkinDoc of checkinSnapshot.docs) {
+        const checkinId = checkinDoc.id;
+        const studentsRef = collection(db, "classroom", cid as string, "checkin", checkinId, "students");
+        const studentsSnapshot = await getDocs(studentsRef);
+  
+        if (studentsSnapshot.empty) {
+          console.log(`⚠️ Check-in ${checkinId} ไม่มีนักเรียน`);
+          continue;
+        }
+  
+        console.log(`🔄 Processing Check-in ID: ${checkinId}, Students: ${studentsSnapshot.size}`);
+  
+        studentsSnapshot.forEach((studentDoc) => {
+          const studentData = studentDoc.data();
+          const studentId = studentDoc.id;
+  
+          // ✅ กำหนดคะแนนใหม่ตามสถานะของนักเรียน
+          let newScore = 0; // ค่าเริ่มต้นเป็น 0 (สำหรับคนที่ไม่มา)
+          if (studentData.status === 1) {
+            newScore = score; // มาเรียน
+          } else if (studentData.status === 2) {
+            newScore = scoreLate; // มาสาย
+          }
+  
+          console.log(`🎯 Updating Student: ${studentId}, Status: ${studentData.status}, New Score: ${newScore}`);
+  
+          // ✅ อัปเดตคะแนนของนักเรียนแต่ละคนใน sub-collection `students`
+          batch.update(doc(db, "classroom", cid as string, "checkin", checkinId, "students", studentId), {
+            score: newScore,
+          });
+        });
+      }
+  
+      // ✅ 4) บันทึกการเปลี่ยนแปลงทั้งหมด
+      await batch.commit();
+  
+      Swal.fire("Success!", "คะแนนอัปเดตเรียบร้อยแล้ว", "success");
+    } catch (error) {
+      console.error("❌ Error updating student scores:", error);
+      Swal.fire("Error!", "ไม่สามารถอัปเดตคะแนนได้", "error");
+    }
+  };
+
   return (
     <>
       <title>Classroom</title>
@@ -202,13 +275,32 @@ export default function ClassroomPage() {
 
         <div className="p-6 bg-gray-100 min-h-screen">
           <h2 className="text-2xl font-bold">Check-in</h2>
-
+          <div className="flex justify-between items-center mt-4">
+          <div className="flex items-center gap-4 mt-4">
+            <label className="font-semibold">คะแนนเข้าเรียน:</label>
+            <input
+              type="number"
+              value={score}
+              onChange={(e) => setScore(parseFloat(e.target.value))}
+              className="border px-2 py-1 w-16 text-center"
+            />
+            <label className="font-semibold">คะแนนเข้าเรียนสาย:</label>
+            <input
+              type="number"
+              value={scoreLate}
+              onChange={(e) => setScoreLate(parseFloat(e.target.value))}
+              className="border px-2 py-1 w-16 text-center"
+            />
+            <button onClick={updateScore} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+              Save
+            </button>
+          </div>
           <Link href={`/classroom/${cid}/create-checkin`}>
             <button className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
               + Add Check-in
             </button>
           </Link>
-
+          </div>
           <div className="mt-6 bg-white shadow-md rounded-lg overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
