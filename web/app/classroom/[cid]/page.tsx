@@ -77,36 +77,42 @@ export default function ClassroomPage() {
   };
 
   // ✅ โหลดข้อมูล Check-in และคำนวณจำนวนที่มาเรียน
-  const fetchCheckinData = (classroomId: string) => {
+  const fetchCheckinData = async (classroomId: string) => {
     const checkinRef = collection(db, "classroom", classroomId, "checkin");
     const q = query(checkinRef);
-
+  
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const checkinList: CheckinData[] = await Promise.all(
         snapshot.docs.map(async (docSnap) => {
           const data = docSnap.data();
-
-          // ตรวจสอบว่ามี `students` หรือไม่
-          const studentsData: Record<string, StudentData> = data.students || {};
-
-          // ✅ คำนวณจำนวนที่มาเรียน (status: 1 = มาเรียน, 2 = มาสาย)
-          const attendingCount = Object.values(studentsData).filter(
-            (student) => student.status === 1 || student.status === 2
-          ).length;
-
+          const checkinId = docSnap.id;
+  
+          // ✅ ดึง students จาก sub-collection `checkin/{cno}/students`
+          const studentsRef = collection(db, "classroom", classroomId, "checkin", checkinId, "students");
+          const studentsSnapshot = await getDocs(studentsRef);
+  
+          // ✅ คำนวณจำนวนที่มาเรียน (status: 1 = มาเรียน, 2 = มาสาย) 
+          const attendingCount = studentsSnapshot.docs.filter((doc) => {
+            const studentData = doc.data();
+            return studentData.status === 1 || studentData.status === 2;
+          }).length;
+  
           return {
-            id: docSnap.id,
-            code: data.code || "N/A", // ตรวจสอบว่ามี `code` หรือไม่
+            id: checkinId,
+            code: data.code || "N/A",
             date: data.date || "N/A",
-            status: data.status ?? 0, // ถ้า `status` ไม่มีค่า ให้ใช้ `0`
+            status: data.status ?? 0,
             attending: attendingCount,
           };
         })
       );
-
+  
+      // ✅ เรียงจากใหม่ → เก่า (Check-in ล่าสุดอยู่บนสุด)
+      checkinList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  
       setCheckins(checkinList);
     });
-
+  
     return () => unsubscribe();
   };
 
