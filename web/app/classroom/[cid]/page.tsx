@@ -133,7 +133,7 @@ export default function ClassroomPage() {
       title: "Classroom QR Code",
       html: (
         <div className="flex justify-center">
-          <QRCodeCanvas value={cid as string} size={380} />
+          <QRCodeCanvas value={"cid"+cid as string} size={380} />
         </div>
       ),
       showCloseButton: true,
@@ -203,25 +203,25 @@ export default function ClassroomPage() {
   
         console.log(`🔄 Processing Check-in ID: ${checkinId}, Students: ${studentsSnapshot.size}`);
   
-        studentsSnapshot.forEach((studentDoc) => {
-          const studentData = studentDoc.data();
-          const studentId = studentDoc.id;
+        // studentsSnapshot.forEach((studentDoc) => {
+        //   const studentData = studentDoc.data();
+        //   const studentId = studentDoc.id;
   
-          // ✅ กำหนดคะแนนใหม่ตามสถานะของนักเรียน
-          let newScore = 0; // ค่าเริ่มต้นเป็น 0 (สำหรับคนที่ไม่มา)
-          if (studentData.status === 1) {
-            newScore = score; // มาเรียน
-          } else if (studentData.status === 2) {
-            newScore = scoreLate; // มาสาย
-          }
+        //   // ✅ กำหนดคะแนนใหม่ตามสถานะของนักเรียน
+        //   let newScore = 0; // ค่าเริ่มต้นเป็น 0 (สำหรับคนที่ไม่มา)
+        //   if (studentData.status === 1) {
+        //     newScore = score; // มาเรียน
+        //   } else if (studentData.status === 2) {
+        //     newScore = scoreLate; // มาสาย
+        //   }
   
-          console.log(`🎯 Updating Student: ${studentId}, Status: ${studentData.status}, New Score: ${newScore}`);
+        //   console.log(`🎯 Updating Student: ${studentId}, Status: ${studentData.status}, New Score: ${newScore}`);
   
-          // ✅ อัปเดตคะแนนของนักเรียนแต่ละคนใน sub-collection `students`
-          batch.update(doc(db, "classroom", cid as string, "checkin", checkinId, "students", studentId), {
-            score: newScore,
-          });
-        });
+        //   // ✅ อัปเดตคะแนนของนักเรียนแต่ละคนใน sub-collection `students`
+        //   batch.update(doc(db, "classroom", cid as string, "checkin", checkinId, "students", studentId), {
+        //     score: newScore,
+        //   });
+        // });
       }
   
       // ✅ 4) บันทึกการเปลี่ยนแปลงทั้งหมด
