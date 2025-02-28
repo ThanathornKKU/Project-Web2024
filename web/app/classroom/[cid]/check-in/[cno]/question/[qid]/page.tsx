@@ -6,9 +6,9 @@ import { doc, onSnapshot, collection as firestoreCollection, DocumentSnapshot, D
 import Link from "next/link";
 
 interface Answer {
+  stdid: string; 
   text: string;
   time: string;
-  stdid: string;
 }
 
 interface Question {
@@ -72,30 +72,23 @@ export default function CheckinQuestions() {
     
     onSnapshot(answersRef, (answersSnapshot) => {
       const allAnswers: Record<string, Answer> = {};
-
-      answersSnapshot.forEach((qnoDoc) => {
-        const qno = qnoDoc.id;
-        const studentsRef = firestoreCollection(db, `classroom/${classroomId}/checkin/${checkinNo}/question/${questionId}/answers/${qno}/students`);
-
-        onSnapshot(studentsRef, (studentsSnapshot) => {
-          studentsSnapshot.forEach((studentDoc) => {
-            const studentData = studentDoc.data();
-            const stdid = studentData.stdid; 
-
-            if (stdid) {
-              allAnswers[`${studentDoc.id}`] = {
-                text: studentData.text,
-                time: studentData.time,
-                stdid: stdid, 
-              };
-            }
-          });
-
-          setQuestion((prev) => (prev ? { ...prev, answers: { ...prev.answers, ...allAnswers } } : null));
-        });
+  
+      answersSnapshot.forEach((docSnap) => {
+        const answerData = docSnap.data();
+        const qno = docSnap.id; // ใช้ `qno` เป็น key
+  
+        if (answerData.stdid) {
+          allAnswers[qno] = {
+            stdid: answerData.stdid,
+            text: answerData.text,
+            time: answerData.time,
+          };
+        }
       });
+  
+      setQuestion((prev) => (prev ? { ...prev, answers: allAnswers } : null));
     });
-  }; 
+  };  
 
   const formatDate = (isoString: string): string => {
     const date = new Date(isoString);
@@ -228,10 +221,11 @@ export default function CheckinQuestions() {
                 >
                   {question.answers && Object.keys(question.answers).length > 0 ? (
                     <ul className="space-y-4">
-                      {Object.entries(question.answers)
+                    {question.answers &&
+                      Object.entries(question.answers)
                         .sort(([, a], [, b]) => new Date(a.time).getTime() - new Date(b.time).getTime()) // ✅ เรียงจากเก่า → ใหม่
-                        .map(([key, answer]) => (
-                          <li key={key} className="flex items-start space-x-3">
+                        .map(([qno, answer]) => (
+                          <li key={qno} className="flex items-start space-x-3">
                             {/* ✅ แสดงรูปโปรไฟล์ */}
                             <img 
                               src={getProfilePicture(answer.stdid)}
@@ -255,7 +249,8 @@ export default function CheckinQuestions() {
                             </div>
                           </li>
                         ))}
-                    </ul>
+                  </ul>
+                  
                   ) : (
                     <p className="text-gray-500">ยังไม่มีนักเรียนตอบ</p>
                   )}
