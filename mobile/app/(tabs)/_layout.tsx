@@ -47,7 +47,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="faq"
+        name="questionList"
         options={{
           title: 'ตอบคำถาม',
           tabBarLabelPosition: 'below-icon',

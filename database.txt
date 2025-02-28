@@ -41,7 +41,7 @@
                     - question_text: string  // ข้อความคำถาม
                     - question_show: boolean  // true = แสดงคำถาม, false = ซ่อนคำถาม
                     - answers:
-                        {qno}:
+                        {ano}:
                             - text: string  // คำถามที่ถูกตั้ง
                             - students:
                                 {sid}:

@@ -53,6 +53,7 @@ export default function RootLayout() {
             <Stack.Screen name="+not-found" options={{ title: 'ไม่พบหน้า' }} />
             <Stack.Screen name="/[cid]/attendance" options={{ title: "Attendance" }} />
             <Stack.Screen name="/[cno]/checkin" options={{ title: "Checkin" }} />
+            <Stack.Screen name="/[qid]/question" options={{ title: "Question" }} />
           </>
         ) : (
           <Stack.Screen name="login" options={{ title: 'เข้าสู่ระบบ' }} />
