@@ -168,7 +168,7 @@ export default function CheckinQuestions() {
   return (
     <>
       <title>Check-in Question</title>
-      <div className="min-h-screen bg-gray-100 p-6">
+      <div className="bg-gray-100 p-6" style={{ height: "calc(100vh - 80px)", overflowY: "auto" }}>
         <div className="max-w-5xl mx-auto bg-white p-6 shadow-lg rounded-lg">
 
           {/* ✅ Breadcrumb */}
