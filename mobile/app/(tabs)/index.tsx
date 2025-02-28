@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from "react-native";
 import { Button } from "react-native-paper";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebaseConfig";
 import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 
@@ -14,44 +14,48 @@ interface Classroom {
 }
 
 export default function IndexScreen() {
-  const { scannedData } = useLocalSearchParams(); // ดึงค่าที่ส่งมา
+  const { scannedData } = useLocalSearchParams();
   const router = useRouter();
-  const user = auth.currentUser;
-
+  const [user, setUser] = useState(auth.currentUser);
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ ตรวจสอบการล็อกอินของ User แบบ Asynchronous
   useEffect(() => {
-    if (user) {
-      fetchClassrooms();
-    }
-  }, [user, scannedData]); // ✅ โหลดใหม่เมื่อมีการสแกน QR Code
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      console.log("🟢 Firebase Auth State Changed:", currentUser?.email);
+      setUser(currentUser);
+      if (currentUser) {
+        fetchClassrooms(currentUser.uid);
+      }
+    });
 
-  const fetchClassrooms = async () => {
-    if (!user) return;
+    return () => unsubscribe(); // ✅ Cleanup Listener เมื่อ Component ถูก Unmount
+  }, [scannedData]); // โหลดใหม่เมื่อมีการสแกน QR Code
+
+  const fetchClassrooms = async (uid: string) => {
     setLoading(true);
-
     try {
-      const userRef = doc(db, "users", user.uid);
-      const userSnapshot = await getDoc(userRef);
-
-      if (!userSnapshot.exists()) {
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
         console.error("User not found");
         setLoading(false);
         return;
       }
 
       const classroomList: Classroom[] = [];
-      const userClassrooms = userSnapshot.data()?.classroom || {};
+      const classroomsRef = collection(db, "classroom");
+      const classroomsSnap = await getDocs(classroomsRef);
 
-      for (const cid of Object.keys(userClassrooms)) {
-        const classRef = doc(db, "classroom", cid);
-        const classSnapshot = await getDoc(classRef);
+      for (const classDoc of classroomsSnap.docs) {
+        const classData = classDoc.data();
+        const studentRef = doc(db, `classroom/${classDoc.id}/students`, uid);
+        const studentSnap = await getDoc(studentRef);
 
-        if (classSnapshot.exists()) {
-          const classData = classSnapshot.data();
+        if (studentSnap.exists()) {
           classroomList.push({
-            id: cid,
+            id: classDoc.id,
             code: classData.info.code,
             name: classData.info.name,
             photo: classData.info.photo || "https://via.placeholder.com/150",
@@ -63,34 +67,13 @@ export default function IndexScreen() {
     } catch (error) {
       console.error("Error fetching classrooms:", error);
     }
-
     setLoading(false);
-  };
-
-  // ✅ เมื่อนักเรียนสแกน QR Code ให้เพิ่มห้องเรียนเข้าไปที่ Firebase
-  const addClassroom = async (cid: string) => {
-    if (!user) return;
-    try {
-      const userRef = doc(db, "users", user.uid);
-      await setDoc(
-        userRef,
-        {
-          classroom: {
-            [cid]: { status: 2 }, // นักเรียน (status = 2)
-          },
-        },
-        { merge: true }
-      );
-
-      await fetchClassrooms(); // โหลดข้อมูลใหม่
-    } catch (error) {
-      console.error("Error adding classroom:", error);
-    }
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      setUser(null);
       router.replace("/login");
     } catch (error: any) {
       console.log("🚨 Logout Error:", error.message);
@@ -99,12 +82,10 @@ export default function IndexScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerText}>คลาสเรียนของฉัน</Text>
       </View>
 
-      {/* แสดงรายวิชา */}
       {loading ? (
         <Text style={styles.loadingText}>กำลังโหลด...</Text>
       ) : classrooms.length > 0 ? (
@@ -112,17 +93,18 @@ export default function IndexScreen() {
           data={classrooms}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Image source={{ uri: item.photo }} style={styles.image} />
-              <Text style={styles.classCode}>{item.code} {item.name}</Text>
-            </View>
+            <TouchableOpacity onPress={() => router.push(`/${item.id}/attendance`)}>
+              <View style={styles.card}>
+                <Image source={{ uri: item.photo }} style={styles.image} />
+                <Text style={styles.classCode}>{item.code} {item.name}</Text>
+              </View>
+            </TouchableOpacity>
           )}
         />
       ) : (
         <Text style={styles.noDataText}>ไม่มีคลาสเรียน</Text>
       )}
 
-      {/* ปุ่ม */}
       <View style={styles.buttonContainer}>
         <Button mode="contained" onPress={() => router.push("/scan")} style={styles.button}>
           สแกน QR Code

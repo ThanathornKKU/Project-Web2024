@@ -1,0 +1,49 @@
+/users/{uid}
+    - name: string
+    - email: string
+    - photo: string
+    - stdid: string ------- เฉพาะนักเรียน
+    - classroom: objectç
+        {cid}: 
+            - status: number  // 1 = อาจารย์, 2 = นักเรียน
+
+/classroom/{cid}
+    - owner: string  // UID ของอาจารย์เจ้าของห้องเรียน
+    - info:
+        - code: string  // รหัสวิชา เช่น "SC310001"
+        - name: string  // ชื่อวิชา เช่น "Computer Programming"
+        - photo: string  // URL รูปภาพของวิชา
+        - room: string  // ชื่อห้องเรียน เช่น "SC5101"
+        - score: number  // คะแนนการเข้าเรียนของวิชานี้นี้ ---------------------------------------------
+        - score_late: number  // คะแนนการเข้าเรียนของวิชานี้ ของคนมาสาย ---------------------------------------------
+    - students:
+        {sid}: 
+            - stdid: string  // รหัสนักเรียน
+            - name: string  // ชื่อนักเรียน
+            - status: number  // 0 = ยังไม่ตรวจสอบ, 1 = ตรวจสอบแล้ว
+    - checkin:
+        {cno}: // สร้าง collection ไหม่
+            - code: string  // รหัสเช็คชื่อ เช่น "ABC123"
+            - date: string  // วันเวลาที่เรียน เช่น "10/02/2025 13:00"
+            - status: number  // 0 = ยังไม่เริ่ม, 1 = กำลังเช็คชื่อ, 2 = เสร็จแล้ว
+            - students:
+                {sid}:
+                    - uid: string  // UID ของนักเรียน
+                    - stdid: string  // รหัสนักเรียน
+                    - name: string  // ชื่อนักเรียน
+                    - score: number  // คะแนนการเข้าเรียน
+                    - remark: string  // หมายเหตุ
+                    - date: string  // เวลาที่เข้าเรียน (ห้ามแก้ไข)
+                    - status: number  // 0: ไม่มา, 1: มาเรียน, 2: มาสาย
+            - question: //--------------------------------------------------
+                {qid}: // สร้าง collection ไหม่
+                    - question_no: number  // เลขข้อคำถาม เช่น 1, 2, 3
+                    - question_text: string  // ข้อความคำถาม
+                    - question_show: boolean  // true = แสดงคำถาม, false = ซ่อนคำถาม
+                    - answers:
+                        {qno}:
+                            - text: string  // คำถามที่ถูกตั้ง
+                            - students:
+                                {sid}:
+                                    - text: string  // คำตอบของนักเรียน
+                                    - time: string  // เวลาส่งคำตอบ
