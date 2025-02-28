@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from "react
 import { Button } from "react-native-paper";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebaseConfig";
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
 
 interface Classroom {
   id: string;
@@ -20,42 +20,43 @@ export default function IndexScreen() {
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ ตรวจสอบการล็อกอินของ User แบบ Asynchronous
+  // ✅ ตรวจสอบการล็อกอินของ User แบบ Real-time
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       console.log("🟢 Firebase Auth State Changed:", currentUser?.email);
       setUser(currentUser);
       if (currentUser) {
-        fetchClassrooms(currentUser.uid);
+        subscribeToClassrooms(currentUser.uid);
       }
     });
 
-    return () => unsubscribe(); // ✅ Cleanup Listener เมื่อ Component ถูก Unmount
-  }, [scannedData]); // โหลดใหม่เมื่อมีการสแกน QR Code
+    return () => unsubscribe();
+  }, []);
 
-  const fetchClassrooms = async (uid: string) => {
+  // ✅ Subscribe ดึงข้อมูลคลาสเรียนแบบเรียลไทม์
+  const subscribeToClassrooms = (uid: string) => {
     setLoading(true);
-    try {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
+
+    const userRef = doc(db, "users", uid);
+    const unsubscribe = onSnapshot(userRef, async (userSnap) => {
       if (!userSnap.exists()) {
         console.error("User not found");
+        setClassrooms([]);
         setLoading(false);
         return;
       }
 
+      const userData = userSnap.data();
       const classroomList: Classroom[] = [];
-      const classroomsRef = collection(db, "classroom");
-      const classroomsSnap = await getDocs(classroomsRef);
 
-      for (const classDoc of classroomsSnap.docs) {
-        const classData = classDoc.data();
-        const studentRef = doc(db, `classroom/${classDoc.id}/students`, uid);
-        const studentSnap = await getDoc(studentRef);
+      for (const cid of Object.keys(userData.classroom || {})) {
+        const classRef = doc(db, "classroom", cid);
+        const classSnap = await getDoc(classRef);
 
-        if (studentSnap.exists()) {
+        if (classSnap.exists()) {
+          const classData = classSnap.data();
           classroomList.push({
-            id: classDoc.id,
+            id: cid,
             code: classData.info.code,
             name: classData.info.name,
             photo: classData.info.photo || "https://via.placeholder.com/150",
@@ -64,10 +65,10 @@ export default function IndexScreen() {
       }
 
       setClassrooms(classroomList);
-    } catch (error) {
-      console.error("Error fetching classrooms:", error);
-    }
-    setLoading(false);
+      setLoading(false);
+    });
+
+    return unsubscribe;
   };
 
   const handleLogout = async () => {
