@@ -181,7 +181,7 @@ export default function CheckinStudents() {
                                                 <input
                                                     type="number"
                                                     className="border border-gray-300 p-1 rounded w-16 text-center"
-                                                    value={student.score ?? getDefaultScore(student.status)}
+                                                    value={student.score}
                                                     onChange={(e) => {
                                                         const newScore = Math.max(0, Number(e.target.value));
                                                         setStudents((prev) =>
@@ -215,7 +215,7 @@ export default function CheckinStudents() {
 
                                                                 // อัปเดตคะแนนใน Check-in
                                                                 const studentDocRef = doc(db, `classroom/${cid}/checkin/${cno}/students/${checkinStudent.id}`);
-                                                                await updateDoc(studentDocRef, { score: student.score ?? getDefaultScore(student.status) });
+                                                                await updateDoc(studentDocRef, { score: student.score });
 
                                                                 console.log(`✅ Updated score for ${student.name}: ${student.score}`);
                                                             } else {
