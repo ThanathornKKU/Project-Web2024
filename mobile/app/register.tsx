@@ -123,7 +123,7 @@ export default function RegisterScreen() {
         </TouchableOpacity>
 
         <TextInput label="ชื่อ" value={name} onChangeText={setName} style={styles.input} mode="outlined" />
-        <TextInput label="รหัสนักเรียน" value={stdid} onChangeText={setStdId} style={styles.input} mode="outlined" keyboardType="numeric" />
+        <TextInput label="รหัสนักเรียน" value={stdid} onChangeText={setStdId} style={styles.input} mode="outlined" />
         <TextInput label="อีเมล" value={email} onChangeText={setEmail} style={styles.input} mode="outlined" keyboardType="email-address" />
         <TextInput label="รหัสผ่าน" value={password} onChangeText={setPassword} style={styles.input} mode="outlined" secureTextEntry />
         <TextInput label="ยืนยันรหัสผ่าน" value={confirmPassword} onChangeText={setConfirmPassword} style={styles.input} mode="outlined" secureTextEntry />
