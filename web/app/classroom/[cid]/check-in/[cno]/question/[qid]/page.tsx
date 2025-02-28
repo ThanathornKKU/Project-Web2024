@@ -106,11 +106,11 @@ export default function CheckinQuestions() {
   const getRandomName = (stdid: string, nameMap: Record<string, string>): string => {
     if (!nameMap[stdid]) {
       const randomNames = [
-        "Apple", "Banana", "Cherry", "Durian", "Elderberry", "Fig", "Grape", "Honeydew", "Iceberry", "Jackfruit",
-        "Kiwi", "Lemon", "Mango", "Nectarine", "Orange", "Papaya", "Quince", "Raspberry", "Strawberry", "Tangerine",
-        "Ugli", "Vanilla", "Watermelon", "Xigua", "YellowPassionfruit", "Zucchini", "Apricot", "Blackberry", "Coconut", "Dragonfruit",
-        "Eggfruit", "Feijoa", "Gooseberry", "Huckleberry", "IndianFig", "Jujube", "Kumquat", "Lychee", "Mulberry", "Nutmeg",
-        "Olive", "Pineapple", "Quandong", "Rambutan", "Soursop", "Tomato", "Uvaia", "VelvetApple", "Wolfberry", "YunnanHackberry"
+        "Apple", "Banana", "Cherry", "Durian", "Elderberry", "Fig", "Grape", "Honeydew", "Jackfruit", "Kiwi",
+        "Lemon", "Mango", "Nectarine", "Orange", "Papaya", "Peach", "Pear", "Pineapple", "Plum", "Pomegranate",
+        "Raspberry", "Strawberry", "Tangerine", "Watermelon", "Coconut", "Cantaloupe", "Blueberry", "Blackberry", "Cranberry", "Guava",
+        "Apricot", "Avocado", "Dragonfruit", "Passionfruit", "Lychee", "Mulberry", "Gooseberry", "Persimmon", "Starfruit", "Mandarin",
+        "Clementine", "Boysenberry", "Currant", "Kumquat", "Olive", "Soursop", "Date", "Tamarind", "Fig", "Pomelo"
       ];      
       nameMap[stdid] = randomNames[Math.floor(Math.random() * randomNames.length)];
     }
