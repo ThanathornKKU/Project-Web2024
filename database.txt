@@ -3,7 +3,6 @@
     - email: string
     - photo: string
     - stdid: string ------- เฉพาะนักเรียน
-    - password: string ------- เฉพาะนักเรียน
     - classroom: objectç
         {cid}: 
             - status: number  // 1 = อาจารย์, 2 = นักเรียน
@@ -42,9 +41,9 @@
                     - question_text: string  // ข้อความคำถาม
                     - question_show: boolean  // true = แสดงคำถาม, false = ซ่อนคำถาม
                     - answers:
-                        {qno}:  
+                        {qno}:
                             - text: string  // คำถามที่ถูกตั้ง
                             - students:
-                                {stdid}:
+                                {sid}:
                                     - text: string  // คำตอบของนักเรียน
                                     - time: string  // เวลาส่งคำตอบ
