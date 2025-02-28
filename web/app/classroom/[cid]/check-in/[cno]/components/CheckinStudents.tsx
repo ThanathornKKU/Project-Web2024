@@ -6,6 +6,8 @@ import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { QRCodeCanvas } from "qrcode.react";
+import { updateDoc } from "firebase/firestore";
+
 
 const MySwal = withReactContent(Swal);
 
@@ -175,8 +177,107 @@ export default function CheckinStudents() {
                                                         ? "มาสาย"
                                                         : "ขาดเรียน"}
                                             </td>
-                                            <td className="p-3">{student.score}</td>
-                                            <td className="p-3">{student.remark}</td>
+                                            <td className="p-3">
+                                                <input
+                                                    type="number"
+                                                    className="border border-gray-300 p-1 rounded w-16 text-center"
+                                                    value={student.score ?? getDefaultScore(student.status)}
+                                                    onChange={(e) => {
+                                                        const newScore = Math.max(0, Number(e.target.value));
+                                                        setStudents((prev) =>
+                                                            prev.map((s) =>
+                                                                s.stdid === student.stdid ? { ...s, score: newScore } : s
+                                                            )
+                                                        );
+                                                    }}
+                                                    onBlur={async () => {
+                                                        if (!student.stdid) {
+                                                            console.error("❌ Missing stdid, cannot update student score");
+                                                            return;
+                                                        }
+
+                                                        // ตรวจสอบว่า stdid มีอยู่จริงใน Classroom และ Check-in หรือไม่
+                                                        const studentClassRef = collection(db, `classroom/${cid}/students`);
+                                                        const studentCheckinRef = collection(db, `classroom/${cid}/checkin/${cno}/students`);
+
+                                                        try {
+                                                            console.log("🔍 Checking if student stdid exists...");
+
+                                                            const classSnap = await getDocs(studentClassRef);
+                                                            const checkinSnap = await getDocs(studentCheckinRef);
+
+                                                            // หาเอกสารที่ stdid ตรงกัน
+                                                            const classStudent = classSnap.docs.find(doc => doc.data().stdid === student.stdid);
+                                                            const checkinStudent = checkinSnap.docs.find(doc => doc.data().stdid === student.stdid);
+
+                                                            if (classStudent && checkinStudent) {
+                                                                console.log("✅ Student found in both classroom and check-in. Updating score...");
+
+                                                                // อัปเดตคะแนนใน Check-in
+                                                                const studentDocRef = doc(db, `classroom/${cid}/checkin/${cno}/students/${checkinStudent.id}`);
+                                                                await updateDoc(studentDocRef, { score: student.score ?? getDefaultScore(student.status) });
+
+                                                                console.log(`✅ Updated score for ${student.name}: ${student.score}`);
+                                                            } else {
+                                                                console.error(`❌ Student with stdid: ${student.stdid} not found in classroom or check-in!`);
+                                                            }
+                                                        } catch (err) {
+                                                            console.error("❌ Error updating score:", err);
+                                                        }
+                                                    }}
+                                                />
+                                            </td>
+
+                                            <td className="p-3">
+                                                <input
+                                                    type="text"
+                                                    className="border border-gray-300 p-1 rounded w-full"
+                                                    value={student.remark ?? ""}
+                                                    onChange={(e) => {
+                                                        const newRemark = e.target.value;
+                                                        setStudents((prev) =>
+                                                            prev.map((s) =>
+                                                                s.stdid === student.stdid ? { ...s, remark: newRemark } : s
+                                                            )
+                                                        );
+                                                    }}
+                                                    onBlur={async () => {
+                                                        if (!student.stdid) {
+                                                            console.error("❌ Missing stdid, cannot update student remark");
+                                                            return;
+                                                        }
+
+                                                        // ตรวจสอบว่า stdid มีอยู่จริงใน Classroom และ Check-in หรือไม่
+                                                        const studentClassRef = collection(db, `classroom/${cid}/students`);
+                                                        const studentCheckinRef = collection(db, `classroom/${cid}/checkin/${cno}/students`);
+
+                                                        try {
+                                                            console.log("🔍 Checking if student stdid exists...");
+
+                                                            const classSnap = await getDocs(studentClassRef);
+                                                            const checkinSnap = await getDocs(studentCheckinRef);
+
+                                                            // หาเอกสารที่ stdid ตรงกัน
+                                                            const classStudent = classSnap.docs.find(doc => doc.data().stdid === student.stdid);
+                                                            const checkinStudent = checkinSnap.docs.find(doc => doc.data().stdid === student.stdid);
+
+                                                            if (classStudent && checkinStudent) {
+                                                                console.log("✅ Student found in both classroom and check-in. Updating remark...");
+
+                                                                // อัปเดตหมายเหตุใน Check-in
+                                                                const studentDocRef = doc(db, `classroom/${cid}/checkin/${cno}/students/${checkinStudent.id}`);
+                                                                await updateDoc(studentDocRef, { remark: student.remark });
+
+                                                                console.log(`✅ Updated remark for ${student.name}: ${student.remark}`);
+                                                            } else {
+                                                                console.error(`❌ Student with stdid: ${student.stdid} not found in classroom or check-in!`);
+                                                            }
+                                                        } catch (err) {
+                                                            console.error("❌ Error updating remark:", err);
+                                                        }
+                                                    }}
+                                                />
+                                            </td>
                                         </tr>
                                     ))
                             ) : (
