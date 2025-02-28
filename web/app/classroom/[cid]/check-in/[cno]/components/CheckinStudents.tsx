@@ -75,7 +75,7 @@ export default function CheckinStudents() {
             title: "Classroom QR Code",
             html: (
                 <div className="flex justify-center">
-                    <QRCodeCanvas value={cno} size={380} />
+                    <QRCodeCanvas value={"cno"+cno} size={380} />
                 </div>
             ),
             showCloseButton: true,

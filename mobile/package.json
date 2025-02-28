@@ -39,6 +39,7 @@
     "expo-system-ui": "~4.0.8",
     "expo-updates": "~0.27.1",
     "expo-web-browser": "~14.0.2",
+    "mobile": "file:",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.7",
