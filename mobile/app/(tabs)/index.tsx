@@ -106,9 +106,6 @@ export default function IndexScreen() {
       )}
 
       <View style={styles.buttonContainer}>
-        <Button mode="contained" onPress={() => router.push("/scan")} style={styles.button}>
-          สแกน QR Code
-        </Button>
         <Button mode="outlined" onPress={handleLogout} style={styles.button} color="red">
           ออกจากระบบ
         </Button>

@@ -42,7 +42,6 @@
                     - question_show: boolean  // true = แสดงคำถาม, false = ซ่อนคำถาม
                     - answers:
                         {qno}:
-                            - text: string  // คำถามที่ถูกตั้ง
                             - students:
                                 {sid}:
                                     - text: string  // คำตอบของนักเรียน
