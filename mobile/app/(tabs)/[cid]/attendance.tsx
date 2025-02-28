@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { db, auth } from "@/lib/firebaseConfig";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { doc, collection, onSnapshot, getDoc } from "firebase/firestore";
 import { Button } from "react-native-paper";
 
 interface AttendanceRecord {
@@ -13,7 +13,7 @@ interface AttendanceRecord {
 }
 
 export default function AttendanceHistoryScreen() {
-  const { cid } = useLocalSearchParams(); // รับค่า `cid` (รหัสวิชา) ที่ถูกส่งมา
+  const { cid } = useLocalSearchParams();
   const router = useRouter();
   const user = auth.currentUser;
 
@@ -24,49 +24,55 @@ export default function AttendanceHistoryScreen() {
 
   useEffect(() => {
     if (user && cid) {
-      fetchAttendanceData(cid as string, user.uid);
+      fetchCourseInfo(cid as string);
+      subscribeToAttendance(cid as string, user.uid);
     }
   }, [user, cid]);
 
-  const fetchAttendanceData = async (classroomId: string, userId: string) => {
+  // ✅ โหลดข้อมูลชื่อวิชา
+  const fetchCourseInfo = async (classroomId: string) => {
+    const classRef = doc(db, "classroom", classroomId);
+    const classSnap = await getDoc(classRef);
+    if (classSnap.exists()) {
+      setCourseName(`${classSnap.data().info.code} ${classSnap.data().info.name}`);
+    }
+  };
+
+  // ✅ Subscribe ดึงข้อมูลเช็คชื่อแบบเรียลไทม์
+  const subscribeToAttendance = (classroomId: string, userId: string) => {
     setLoading(true);
 
-    try {
-      // ✅ ดึงข้อมูลชื่อวิชา
-      const classRef = doc(db, "classroom", classroomId);
-      const classSnap = await getDoc(classRef);
-      if (classSnap.exists()) {
-        setCourseName(`${classSnap.data().info.code} ${classSnap.data().info.name}`);
-      }
-
-      // ✅ ดึงข้อมูลการเช็คชื่อของนักเรียน
-      const checkinRef = collection(db, `classroom/${classroomId}/checkin`);
-      const checkinSnap = await getDocs(checkinRef);
-
+    const checkinRef = collection(db, `classroom/${classroomId}/checkin`);
+    const unsubscribe = onSnapshot(checkinRef, async (snapshot) => {
       let records: AttendanceRecord[] = [];
       let total = 0;
 
-      checkinSnap.forEach((doc) => {
-        const checkinData = doc.data();
-        if (checkinData.students?.[userId]) {
-          const studentData = checkinData.students[userId];
+      for (const docSnap of snapshot.docs) {
+        const checkinData = docSnap.data();
+        const checkinId = docSnap.id;
+
+        const studentRef = doc(db, `classroom/${classroomId}/checkin/${checkinId}/students`, userId);
+        const studentSnap = await getDoc(studentRef);
+
+        if (studentSnap.exists()) {
+          const studentData = studentSnap.data();
+
           records.push({
             date: checkinData.date,
             status: getStatusText(studentData.status),
-            score: studentData.score,
+            score: studentData.score ?? 0,
             remark: studentData.remark || "-",
           });
-          total += studentData.score;
+          total += studentData.score ?? 0;
         }
-      });
+      }
 
       setAttendanceRecords(records);
       setTotalScore(total);
-    } catch (error) {
-      console.error("🔥 Error fetching attendance data:", error);
-    }
+      setLoading(false);
+    });
 
-    setLoading(false);
+    return () => unsubscribe();
   };
 
   const getStatusText = (status: number) => {
