@@ -41,7 +41,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: ${{ env.manager }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -51,18 +52,18 @@ jobs:
       - name: Restore cache
         uses: actions/cache@v4
         with:
-          path: .next/cache
+          path: web/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('web/package-lock.json', 'web/yarn.lock') }}-${{ hashFiles('web/**/*.ts', 'web/**/*.tsx') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('web/package-lock.json', 'web/yarn.lock') }}-
 
       - name: Install dependencies
         working-directory: web
-        run: ${{ env.manager }} ${{ env.command }}
+        run: npm ci
 
       - name: Build with Next.js
         working-directory: web
-        run: ${{ env.runner }} next build
+        run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
