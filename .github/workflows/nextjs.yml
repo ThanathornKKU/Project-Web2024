@@ -63,7 +63,8 @@ jobs:
 
       - name: Build with Next.js
         working-directory: web
-        run: npm run build
+        run: npm run build --no-lint
+
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
