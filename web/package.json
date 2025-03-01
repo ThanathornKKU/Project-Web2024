@@ -5,7 +5,8 @@
   "scripts": {
   "dev": "next dev",
   "build": "next build --no-lint",
-  "start": "next start"
+  "start": "next start",
+  "export": "next export"
 },
   "dependencies": {
     "firebase": "^11.3.1",
