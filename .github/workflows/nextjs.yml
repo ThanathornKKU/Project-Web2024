@@ -24,11 +24,11 @@ jobs:
       - name: Detect package manager
         id: detect-package-manager
         run: |
-          if [ -f "${{ github.workspace }}/yarn.lock" ]; then
+          if [ -f "${{ github.workspace }}/web/yarn.lock" ]; then
             echo "manager=yarn" >> $GITHUB_ENV
             echo "command=install --frozen-lockfile" >> $GITHUB_ENV
             echo "runner=yarn" >> $GITHUB_ENV
-          elif [ -f "${{ github.workspace }}/package-lock.json" ]; then
+          elif [ -f "${{ github.workspace }}/web/package-lock.json" ]; then
             echo "manager=npm" >> $GITHUB_ENV
             echo "command=ci" >> $GITHUB_ENV
             echo "runner=npx --no-install" >> $GITHUB_ENV
@@ -52,20 +52,22 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('web/package-lock.json', 'web/yarn.lock') }}-${{ hashFiles('web/**/*.ts', 'web/**/*.tsx') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+            ${{ runner.os }}-nextjs-${{ hashFiles('web/package-lock.json', 'web/yarn.lock') }}-
 
       - name: Install dependencies
+        working-directory: web
         run: ${{ env.manager }} ${{ env.command }}
 
       - name: Build with Next.js
+        working-directory: web
         run: ${{ env.runner }} next build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: web/.next
 
   deploy:
     environment:
