@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { db, auth } from "@/lib/firebaseConfig";
-import { doc, collection, onSnapshot, getDoc } from "firebase/firestore";
+import { doc, collection, onSnapshot, getDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Button } from "react-native-paper";
+import AwesomeAlert from "react-native-awesome-alerts";
 
 interface AttendanceRecord {
   date: string;
@@ -21,6 +22,7 @@ export default function AttendanceHistoryScreen() {
   const [courseName, setCourseName] = useState("");
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [totalScore, setTotalScore] = useState(0);
+  const [showAlert, setShowAlert] = useState(false); // ✅ ใช้สำหรับ AwesomeAlert
 
   useEffect(() => {
     if (user && cid) {
@@ -29,7 +31,6 @@ export default function AttendanceHistoryScreen() {
     }
   }, [user, cid]);
 
-  // ✅ โหลดข้อมูลชื่อวิชา
   const fetchCourseInfo = async (classroomId: string) => {
     const classRef = doc(db, "classroom", classroomId);
     const classSnap = await getDoc(classRef);
@@ -38,7 +39,6 @@ export default function AttendanceHistoryScreen() {
     }
   };
 
-  // ✅ Subscribe ดึงข้อมูลเช็คชื่อแบบเรียลไทม์
   const subscribeToAttendance = (classroomId: string, userId: string) => {
     setLoading(true);
 
@@ -81,6 +81,38 @@ export default function AttendanceHistoryScreen() {
     return "ขาด";
   };
 
+  // ✅ เปิด Alert ออกจากห้องเรียน
+  const showLeaveAlert = () => {
+    setShowAlert(true);
+  };
+
+  // ✅ ฟังก์ชันออกจากห้องเรียน
+  const handleLeaveClassroom = async () => {
+    if (!user || !cid) return;
+
+    try {
+      const studentRef = doc(db, `classroom/${cid}/students/${user.uid}`);
+      await deleteDoc(studentRef); // ✅ ลบนักเรียนออกจาก /classroom/{cid}/students
+
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const updatedClassroom = { ...userData.classroom };
+        delete updatedClassroom[cid as string];
+
+        await updateDoc(userRef, { classroom: updatedClassroom }); // ✅ อัปเดตข้อมูลใน /users/{uid}/classroom
+      }
+
+      setShowAlert(false);
+      router.replace("/"); // ✅ กลับไปหน้าหลัก
+    } catch (error) {
+      console.error("🚨 Error leaving classroom:", error);
+      setShowAlert(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -117,10 +149,32 @@ export default function AttendanceHistoryScreen() {
         />
       )}
 
-      {/* ปุ่มย้อนกลับ */}
-      <Button mode="outlined" onPress={() => router.back()} style={styles.backButton}>
-        กลับไปหน้าหลัก
-      </Button>
+      {/* ปุ่มออกจากห้องเรียน & ย้อนกลับ */}
+      <View style={styles.buttonContainer}>
+        <Button mode="contained" onPress={showLeaveAlert} style={styles.leaveButton} color="red">
+          ออกจากห้องเรียน
+        </Button>
+        <Button mode="outlined" onPress={() => router.back()} style={styles.backButton}>
+          กลับไปหน้าหลัก
+        </Button>
+      </View>
+
+      {/* ✅ AwesomeAlert สำหรับยืนยันการออกจากห้องเรียน */}
+      <AwesomeAlert
+        show={showAlert}
+        showProgress={false}
+        title="ออกจากห้องเรียน"
+        message="คุณแน่ใจหรือไม่ว่าต้องการออกจากห้องเรียนนี้?"
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={true}
+        showConfirmButton={true}
+        cancelText="ยกเลิก"
+        confirmText="ออกจากห้องเรียน"
+        confirmButtonColor="red"
+        onCancelPressed={() => setShowAlert(false)}
+        onConfirmPressed={handleLeaveClassroom}
+      />
     </View>
   );
 }
@@ -146,5 +200,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
   },
   tableCell: { flex: 1, textAlign: "center" },
-  backButton: { marginTop: 20, alignSelf: "center" },
+  buttonContainer: { marginTop: 20, alignItems: "center" },
+  leaveButton: { marginBottom: 10, width: "80%" },
+  backButton: { width: "80%" },
 });

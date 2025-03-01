@@ -113,6 +113,7 @@ export default function QuestionScreen() {
           renderItem={({ item }) => (
             <View style={styles.row}>
               <Text style={styles.courseText}>{item.courseName}</Text>
+              <Text style={styles.courseText}>{item.questionText}</Text>
               <TouchableOpacity
                 style={styles.answerButton}
                 onPress={() =>

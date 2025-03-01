@@ -3,7 +3,7 @@
     - email: string
     - photo: string
     - stdid: string ------- เฉพาะนักเรียน
-    - classroom: objectç
+    - classroom: objectc
         {cid}: 
             - status: number  // 1 = อาจารย์, 2 = นักเรียน
 

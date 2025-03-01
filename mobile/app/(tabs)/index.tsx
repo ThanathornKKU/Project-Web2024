@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from "react
 import { Button } from "react-native-paper";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebaseConfig";
-import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 
 interface Classroom {
   id: string;
@@ -47,21 +47,34 @@ export default function IndexScreen() {
       }
 
       const userData = userSnap.data();
-      const classroomList: Classroom[] = [];
+      let classroomList: Classroom[] = [];
 
       for (const cid of Object.keys(userData.classroom || {})) {
         const classRef = doc(db, "classroom", cid);
         const classSnap = await getDoc(classRef);
 
-        if (classSnap.exists()) {
-          const classData = classSnap.data();
-          classroomList.push({
-            id: cid,
-            code: classData.info.code,
-            name: classData.info.name,
-            photo: classData.info.photo || "https://via.placeholder.com/150",
-          });
+        if (!classSnap.exists()) {
+          continue; // ห้องเรียนไม่มีอยู่แล้ว
         }
+
+        const studentRef = doc(db, `classroom/${cid}/students/${uid}`);
+        const studentSnap = await getDoc(studentRef);
+
+        if (!studentSnap.exists()) {
+          // ✅ ลบนักเรียนออกจาก `/users/{uid}/classroom/{cid}`
+          console.log(`🔥 Removing ${cid} from user classroom list`);
+          await removeClassroomFromUser(uid, cid);
+          continue;
+        }
+
+        // ✅ ถ้ายังอยู่ในห้องเรียน ให้เพิ่มลงในรายการแสดงผล
+        const classData = classSnap.data();
+        classroomList.push({
+          id: cid,
+          code: classData.info.code,
+          name: classData.info.name,
+          photo: classData.info.photo || "https://via.placeholder.com/150",
+        });
       }
 
       setClassrooms(classroomList);
@@ -69,6 +82,25 @@ export default function IndexScreen() {
     });
 
     return unsubscribe;
+  };
+
+  // ✅ ฟังก์ชันลบ classroom ออกจาก `/users/{uid}/classroom`
+  const removeClassroomFromUser = async (uid: string, cid: string) => {
+    try {
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const updatedClassroom = { ...userData.classroom };
+        delete updatedClassroom[cid];
+
+        await updateDoc(userRef, { classroom: updatedClassroom });
+        console.log(`✅ Removed classroom ${cid} from user ${uid}`);
+      }
+    } catch (error) {
+      console.error("❌ Error removing classroom from user:", error);
+    }
   };
 
   const handleLogout = async () => {
