@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "mobile",
-    "slug": "mobile",
+    "slug": "project-web2024",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -45,15 +45,15 @@
         "origin": false
       },
       "eas": {
-        "projectId": "a81d3b6f-e914-402b-a3ab-78d61e1f0f70"
+        "projectId": "c54449dc-5dab-4b29-8f21-7e715a80ff69"
       }
     },
-    "owner": "suphasan",
+    "owner": "thanathorn.c",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/a81d3b6f-e914-402b-a3ab-78d61e1f0f70"
+      "url": "https://u.expo.dev/c54449dc-5dab-4b29-8f21-7e715a80ff69"
     }
   }
 }
