@@ -43,7 +43,7 @@ export default function CheckinQuestions() {
     if (cid && !isGuestMode) {
       fetchStudentProfiles(cid);
     }
-  }, [cid, isGuestMode]); // ✅ โหลด studentProfiles ใหม่ทุกครั้งที่ปิด Guest Mode
+  }, [cid, isGuestMode]);
 
   const fetchQuestion = (classroomId: string, checkinNo: string, questionId: string) => {
     const questionRef = doc(db, `classroom/${classroomId}/checkin/${checkinNo}/question`, questionId);
@@ -93,6 +93,11 @@ export default function CheckinQuestions() {
     } catch (error) {
       console.error("Error fetching student profiles:", error);
     }
+  };
+
+  const formatDate = (isoString: string): string => {
+    const date = new Date(isoString);
+    return date.toISOString().replace("T", " ").split(".")[0]; // ✅ แสดงเวลาแบบ `YYYY-MM-DD HH:mm:ss`
   };
 
   const randomNames = [
@@ -153,24 +158,29 @@ export default function CheckinQuestions() {
 
             <div className="bg-gray-100 p-4 rounded-lg shadow text-black">
               <h4 className="text-lg font-semibold mb-4">คำตอบจากนักเรียน:</h4>
-              <div className="max-h-96 overflow-y-auto flex flex-col-reverse space-y-4 p-2 bg-white rounded-lg shadow-inner" ref={chatBoxRef}>
+              <div className="max-h-96 overflow-y-auto flex flex-col space-y-4 p-2 bg-white rounded-lg shadow-inner" ref={chatBoxRef}>
                 {question.answers && Object.keys(question.answers).length > 0 ? (
                   <ul className="space-y-4">
-                    {Object.entries(question.answers).map(([qno, answer]) => (
-                      <li key={qno} className="flex items-start space-x-3">
-                        <img 
-                          src={getProfilePicture(answer.stdid)}
-                          alt="Profile"
-                          className="w-10 h-10 rounded-full"
-                        />
-                        <div className="bg-gray-200 text-black p-3 rounded-lg w-fit max-w-xl overflow-hidden break-words">
-                          <span className="font-semibold text-black">
-                            {isGuestMode ? getRandomName(answer.stdid) : answer.stdid}
-                          </span>
-                          <p className="text-black text-base">{answer.text}</p>
-                        </div>
-                      </li>
-                    ))}
+                    {Object.entries(question.answers)
+                      .sort(([, a], [, b]) => new Date(a.time).getTime() - new Date(b.time).getTime()) // ✅ เรียงจากเก่าไปใหม่
+                      .map(([qno, answer]) => (
+                        <li key={qno} className="flex items-start space-x-3">
+                          <img 
+                            src={getProfilePicture(answer.stdid)}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <div className="bg-gray-200 text-black p-3 rounded-lg w-fit max-w-xl overflow-hidden break-words">
+                            <div className="flex items-center space-x-2 text-black text-sm">
+                              <span className="font-semibold text-black">
+                                {isGuestMode ? getRandomName(answer.stdid) : answer.stdid}
+                              </span>
+                              <span className="text-xs text-gray-600">{formatDate(answer.time)}</span>
+                            </div>
+                            <p className="text-black text-base">{answer.text}</p>
+                          </div>
+                        </li>
+                      ))}
                   </ul>
                 ) : (
                   <p className="text-gray-500">ยังไม่มีนักเรียนตอบ</p>
