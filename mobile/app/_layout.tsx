@@ -8,6 +8,8 @@ import 'react-native-reanimated';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebaseConfig';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useQuestionListener } from '@/hooks/useQuestionListener'; // ✅ Import Hook
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 // ป้องกัน Splash Screen หายไปก่อนโหลดข้อมูล
 SplashScreen.preventAutoHideAsync();
@@ -20,6 +22,9 @@ export default function RootLayout() {
   });
 
   const [user, setUser] = useState<any>(null);
+
+  // ✅ ใช้ Hook เพื่อตรวจจับคำถามที่เปิดใหม่
+  const { showAlert, setShowAlert, questionPath } = useQuestionListener();
 
   useEffect(() => {
     // ตรวจสอบสถานะการเข้าสู่ระบบ
@@ -51,14 +56,34 @@ export default function RootLayout() {
             <Stack.Screen name="index" options={{ title: 'หน้าแรก' }} />
             <Stack.Screen name="scan" options={{ title: 'สแกน QR' }} />
             <Stack.Screen name="+not-found" options={{ title: 'ไม่พบหน้า' }} />
-            {/* <Stack.Screen name="/[cid]/attendance" options={{ title: "Attendance" }} />
-            <Stack.Screen name="/[cno]/checkin" options={{ title: "Checkin" }} />
-            <Stack.Screen name="/[qid]/question" options={{ title: "Question" }} /> */}
           </>
         ) : (
           <Stack.Screen name="login" options={{ title: 'เข้าสู่ระบบ' }} />
         )}
       </Stack>
+
+      {/* ✅ Alert แจ้งเตือนคำถาม */}
+      <AwesomeAlert
+        show={showAlert}
+        showProgress={false}
+        title="คำถามใหม่ถูกเปิด"
+        message="คุณต้องการไปตอบคำถามหรือไม่?"
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={true}
+        showConfirmButton={true}
+        cancelText="ไม่ใช่ตอนนี้"
+        confirmText="ไปตอบคำถาม"
+        confirmButtonColor="#4CAF50"
+        onCancelPressed={() => setShowAlert(false)}
+        onConfirmPressed={() => {
+          if (questionPath) {
+            router.push(questionPath);
+          }
+          setShowAlert(false);
+        }}
+      />
+
       <StatusBar style="auto" />
     </ThemeProvider>
   );

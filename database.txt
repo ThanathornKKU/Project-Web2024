@@ -47,3 +47,11 @@
                                 {sid}:
                                     - text: string  // คำตอบของนักเรียน
                                     - time: string  // เวลาส่งคำตอบ
+
+
+
+
+
+http://localhost:8081/YD9TOPBYWpbfeAVmqkIg/j39QE3ierTmGOLda2dD5/DV1ndqkDvdpqQp7taenH/question
+
+http://localhost:8081/DV1ndqkDvdpqQp7taenH/question
