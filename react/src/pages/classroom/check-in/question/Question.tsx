@@ -20,7 +20,6 @@ interface Question {
 export default function CheckinQuestions() {
   const { cid, cno, qid } = useParams();
   const [question, setQuestion] = useState<Question | null>(null);
-  const [checkinDate, setCheckinDate] = useState<string>("");
   const chatBoxRef = useRef<HTMLDivElement | null>(null);
   const [isGuestMode, setIsGuestMode] = useState(true);
   const [nameMap, setNameMap] = useState<Record<string, string>>({});
@@ -29,7 +28,6 @@ export default function CheckinQuestions() {
 
   useEffect(() => {
     if (cid && cno && qid) {
-      fetchCheckinData(cid, cno);
       fetchQuestion(cid, cno, qid);
       fetchAnswers(cid, cno, qid);
     }
@@ -42,19 +40,10 @@ export default function CheckinQuestions() {
   }, [question?.answers]);
 
   useEffect(() => {
-    if (cid) {
+    if (cid && !isGuestMode) {
       fetchStudentProfiles(cid);
     }
-  }, [cid]);
-
-  const fetchCheckinData = (classroomId: string, checkinNo: string) => {
-    const checkinRef = doc(db, `classroom/${classroomId}/checkin`, checkinNo);
-    onSnapshot(checkinRef, (snapshot) => {
-      if (snapshot.exists()) {
-        setCheckinDate(snapshot.data().date);
-      }
-    });
-  };
+  }, [cid, isGuestMode]); // ✅ โหลด studentProfiles ใหม่ทุกครั้งที่ปิด Guest Mode
 
   const fetchQuestion = (classroomId: string, checkinNo: string, questionId: string) => {
     const questionRef = doc(db, `classroom/${classroomId}/checkin/${checkinNo}/question`, questionId);
@@ -96,10 +85,7 @@ export default function CheckinQuestions() {
         let photo = userData.photo;
 
         if (stdid) {
-          if (photo && !photo.startsWith("http")) {
-            photo = `data:image/jpeg;base64,${photo}`;
-          }
-          profiles[stdid] = photo || getRandomProfile(stdid, profileMap);
+          profiles[stdid] = photo && photo.startsWith("http") ? photo : getRandomProfile(stdid);
         }
       });
 
@@ -109,12 +95,31 @@ export default function CheckinQuestions() {
     }
   };
 
-  const getRandomProfile = (stdid: string, profileMap: Record<string, string>): string => {
+  const randomNames = [
+    "Apple", "Banana", "Cherry", "Durian", "Elderberry", "Fig", "Grape", "Honeydew", "Jackfruit", "Kiwi",
+    "Lemon", "Mango", "Nectarine", "Orange", "Papaya", "Peach", "Pear", "Pineapple", "Plum", "Pomegranate",
+  ];
+
+  const getRandomName = (stdid: string) => {
+    if (!nameMap[stdid]) {
+      nameMap[stdid] = randomNames[Math.floor(Math.random() * randomNames.length)];
+    }
+    return nameMap[stdid];
+  };
+
+  const getRandomProfile = (stdid: string) => {
     if (!profileMap[stdid]) {
       const randomProfile = Math.floor(Math.random() * 12) + 1;
       profileMap[stdid] = `/emoji/${randomProfile}.svg`;
     }
     return profileMap[stdid];
+  };
+
+  const getProfilePicture = (stdid: string) => {
+    if (isGuestMode) {
+      return getRandomProfile(stdid);
+    }
+    return studentProfiles[stdid] || getRandomProfile(stdid);
   };
 
   return (
@@ -133,7 +138,12 @@ export default function CheckinQuestions() {
               <div className="flex items-center">
                 <span className="text-black mr-3">Guest Mode</span>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" checked={isGuestMode} onChange={() => setIsGuestMode((prev) => !prev)} />
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={isGuestMode} 
+                    onChange={() => setIsGuestMode((prev) => !prev)} 
+                  />
                   <div className="w-11 h-6 bg-gray-300 peer-checked:bg-blue-600 rounded-full"></div>
                 </label>
               </div>
@@ -148,9 +158,15 @@ export default function CheckinQuestions() {
                   <ul className="space-y-4">
                     {Object.entries(question.answers).map(([qno, answer]) => (
                       <li key={qno} className="flex items-start space-x-3">
-                        <img src={getRandomProfile(answer.stdid, profileMap)} alt="Profile" className="w-10 h-10 rounded-full" />
+                        <img 
+                          src={getProfilePicture(answer.stdid)}
+                          alt="Profile"
+                          className="w-10 h-10 rounded-full"
+                        />
                         <div className="bg-gray-200 text-black p-3 rounded-lg w-fit max-w-xl overflow-hidden break-words">
-                          <span className="font-semibold text-black">{answer.stdid}</span>
+                          <span className="font-semibold text-black">
+                            {isGuestMode ? getRandomName(answer.stdid) : answer.stdid}
+                          </span>
                           <p className="text-black text-base">{answer.text}</p>
                         </div>
                       </li>
