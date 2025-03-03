@@ -191,7 +191,7 @@ export default function ClassroomPage() {
                             <div className="bg-white p-4 rounded-lg shadow-md w-full">
                                 <h3 className="text-lg font-semibold text-center">QR-Classroom</h3>
                                 <div className="flex justify-center">
-                                    <QRCodeCanvas value={cid || ""} size={75} />
+                                    <QRCodeCanvas value={"cid" + cid || ""} size={75} />
                                 </div>
                                 <button
                                     onClick={showQRCode}
