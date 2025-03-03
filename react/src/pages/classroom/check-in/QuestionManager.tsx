@@ -5,18 +5,29 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy 
 import Swal from "sweetalert2";
 import { FaEye, FaTrash, FaRegQuestionCircle } from "react-icons/fa";
 
-export default function QuestionManager() {
-  const { cid, cno } = useParams(); // ✅ ดึงพารามิเตอร์จาก URL
+
+interface QuestionManagerProps {
+  cid?: string;
+  cno?: string;
+}
+
+const QuestionManager: React.FC<QuestionManagerProps> = ({ cid, cno }) => {
+  // 🔥 ถ้า `cid` และ `cno` ไม่มีค่า ให้ดึงจาก `useParams()`
+  const params = useParams();
+  const classId = cid ?? params.cid;
+  const checkinId = cno ?? params.cno;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [questions, setQuestions] = useState<any[]>([]);
 
   useEffect(() => {
-    if (cid && cno) {
-      fetchQuestions();
+    if (classId && checkinId) {
+      fetchQuestions(classId, checkinId);
     }
-  }, [cid, cno]);
+  }, [classId, checkinId]);
 
-  const fetchQuestions = async () => {
-    const qRef = collection(db, `classroom/${cid}/checkin/${cno}/question`);
+  const fetchQuestions = async (classId: string, checkinId: string) => {
+    const qRef = collection(db, `classroom/${classId}/checkin/${checkinId}/question`);
     const snapshot = await getDocs(query(qRef, orderBy("question_no", "asc")));
     const data = snapshot.docs.map((doc) => ({
       qid: doc.id,
@@ -197,3 +208,5 @@ export default function QuestionManager() {
     </div>
   );
 }
+
+export default QuestionManager;

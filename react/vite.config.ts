@@ -8,4 +8,5 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  base: '/deleteMe/', // ✅ ต้องตั้งให้ตรงกับชื่อ repo บน GitHub Pages
 })

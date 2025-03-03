@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { db } from "../../../../lib/firebase";
 import { doc, onSnapshot, collection, getDocs } from "firebase/firestore";
@@ -22,8 +22,8 @@ export default function CheckinQuestions() {
   const [question, setQuestion] = useState<Question | null>(null);
   const chatBoxRef = useRef<HTMLDivElement | null>(null);
   const [isGuestMode, setIsGuestMode] = useState(true);
-  const [nameMap, setNameMap] = useState<Record<string, string>>({});
-  const [profileMap, setProfileMap] = useState<Record<string, string>>({});
+  const [nameMap] = useState<Record<string, string>>({});
+  const [profileMap] = useState<Record<string, string>>({});
   const [studentProfiles, setStudentProfiles] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function CheckinQuestions() {
 
   useEffect(() => {
     if (cid && !isGuestMode) {
-      fetchStudentProfiles(cid);
+      fetchStudentProfiles();
     }
   }, [cid, isGuestMode]);
 
@@ -73,7 +73,7 @@ export default function CheckinQuestions() {
     });
   };
 
-  const fetchStudentProfiles = async (classroomId: string) => {
+  const fetchStudentProfiles = async () => {
     try {
       const usersRef = collection(db, "users");
       const usersSnapshot = await getDocs(usersRef);

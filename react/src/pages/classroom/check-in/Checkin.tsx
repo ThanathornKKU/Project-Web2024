@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
 import { db } from "../../../lib/firebase"; // ✅ เปลี่ยน Path import
 import { doc, getDoc } from "firebase/firestore";
-import NavbarSecond from "../../../components/NavbarSecond";
 import CheckinStudents from "./CheckinStudents";
 import QuestionManager from "./QuestionManager";
 

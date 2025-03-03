@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { doc, getDoc, collection, query, onSnapshot, deleteDoc, updateDoc, getDocs, writeBatch } from "firebase/firestore";
+import { doc, getDoc, collection, query, onSnapshot, deleteDoc, updateDoc, getDocs } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";

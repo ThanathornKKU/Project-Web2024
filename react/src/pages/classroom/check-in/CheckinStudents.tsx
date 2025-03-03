@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"; // ✅ ใช้จาก `react-router-dom`
 import { db } from "../../../lib/firebase"; // ✅ เปลี่ยน Path ให้ถูกต้อง
 import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
@@ -22,7 +22,7 @@ export default function CheckinStudents() {
   const { cid, cno } = useParams(); // ✅ ใช้ React Router `useParams()`
   const [students, setStudents] = useState<CheckinStudent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [checkinDate, setCheckinDate] = useState<string>("");
+  const [, setCheckinDate] = useState<string>("");
 
   useEffect(() => {
     if (cid && cno) {

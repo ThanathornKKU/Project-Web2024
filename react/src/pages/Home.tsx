@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { auth, provider, db } from "../lib/firebase";
-import { signInWithPopup, signOut, User } from "firebase/auth";
+import { signInWithPopup, User } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface ClassroomInfo {
   code: string;
@@ -24,10 +24,9 @@ interface UserProfile {
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [, setUserProfile] = useState<UserProfile | null>(null);
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = user ? "Home" : "Login";
@@ -121,16 +120,6 @@ export default function Home() {
     }
   };
 
-  const logout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-      setUserProfile(null);
-      setClassrooms([]);
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
 
   if (loading) {
     return (
@@ -152,7 +141,7 @@ export default function Home() {
               onClick={logingoogle}
               className="w-full max-w-md flex items-center justify-center gap-3 px-8 py-3 bg-white text-black font-semibold rounded-xl shadow-md border hover:bg-blue-600 hover:text-white transition-colors duration-200 mb-4"
             >
-              <img src="/google-icon.png" alt="Google Icon" className="w-7 h-7" />
+              <img src="../../public/google-icon.png" alt="Google Icon" className="w-7 h-7" />
               <span>Login with Google</span>
             </button>
           </div>

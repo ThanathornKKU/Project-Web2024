@@ -10,10 +10,11 @@ import CheckinPage from "./pages/classroom/check-in/Checkin";
 import EditProfile from "./pages/edit-profile/EditProfile";
 import EditClassroom from "./pages/edit-classroom/EditClassroom";
 import CheckinQuestions from "./pages/classroom/check-in/question/Question";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <Router>
+    <Router basename="/deleteMe">
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -26,6 +27,7 @@ function App() {
           <Route path="/classroom/:cid/create-checkin" element={<CreateCheckin />} />
           <Route path="/classroom/:cid/check-in/:cno" element={<CheckinPage />} />
           <Route path="/classroom/:cid/check-in/:cno/question/:qid" element={<CheckinQuestions />} />
+          <Route path="*" element={<NotFound />} /> {/* ✅ หน้า 404 */}
         </Routes>
       </Layout>
     </Router>
