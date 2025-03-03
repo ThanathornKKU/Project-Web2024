@@ -228,11 +228,11 @@ export default function ClassroomPage() {
                             Save
                         </button>
                     </div>
-                    <a href={`/classroom/${cid}/create-checkin`}>
+                    <Link to={`/classroom/${cid}/create-checkin`}>
                         <button className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
                             + Add Check-in
                         </button>
-                    </a>
+                    </Link>
                 </div>
                 <div className="mt-6 bg-white shadow-md rounded-lg overflow-hidden">
                     <table className="w-full text-left border-collapse">
@@ -275,9 +275,9 @@ export default function ClassroomPage() {
                                         </td>
                                         <td className="p-3 text-center">
                                             <button onClick={() => handleDeleteCheckin(checkin.id)} className="me-1 px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600">ลบ</button>
-                                            <a href={`/classroom/${cid}/check-in/${checkin.id}`}>
+                                            <Link to={`/classroom/${cid}/check-in/${checkin.id}`}>
                                                 <button className=" ms-1 px-2 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600">View</button>
-                                            </a>
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))

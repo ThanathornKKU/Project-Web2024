@@ -115,7 +115,7 @@ export default function CheckinQuestions() {
   const getRandomProfile = (stdid: string) => {
     if (!profileMap[stdid]) {
       const randomProfile = Math.floor(Math.random() * 12) + 1;
-      profileMap[stdid] = `/emoji/${randomProfile}.svg`;
+      profileMap[stdid] = `./emoji/${randomProfile}.svg`;
     }
     return profileMap[stdid];
   };

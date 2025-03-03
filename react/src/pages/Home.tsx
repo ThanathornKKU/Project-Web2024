@@ -141,7 +141,7 @@ export default function Home() {
               onClick={logingoogle}
               className="w-full max-w-md flex items-center justify-center gap-3 px-8 py-3 bg-white text-black font-semibold rounded-xl shadow-md border hover:bg-blue-600 hover:text-white transition-colors duration-200 mb-4"
             >
-              <img src="../../public/google-icon.png" alt="Google Icon" className="w-7 h-7" />
+              <img src="./google-icon.png" alt="Google Icon" className="w-7 h-7" />
               <span>Login with Google</span>
             </button>
           </div>

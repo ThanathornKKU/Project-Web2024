@@ -14,7 +14,7 @@ import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <Router basename="/deleteMe">
+    <Router basename="/Project-Web2024">
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
