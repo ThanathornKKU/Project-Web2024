@@ -41,38 +41,40 @@ export default function AttendanceHistoryScreen() {
 
   const subscribeToAttendance = (classroomId: string, userId: string) => {
     setLoading(true);
-
     const checkinRef = collection(db, `classroom/${classroomId}/checkin`);
-    const unsubscribe = onSnapshot(checkinRef, async (snapshot) => {
-      let records: AttendanceRecord[] = [];
+  
+    return onSnapshot(checkinRef, (snapshot) => {
+      let recordsMap = new Map<string, AttendanceRecord>(); // ✅ ใช้ Map() เพื่อลดปัญหาข้อมูลซ้ำ
       let total = 0;
-
-      for (const docSnap of snapshot.docs) {
+  
+      snapshot.docs.forEach((docSnap) => {
         const checkinData = docSnap.data();
         const checkinId = docSnap.id;
-
+  
+        // ✅ ใช้ onSnapshot() ติดตาม student/{uid} แบบ real-time
         const studentRef = doc(db, `classroom/${classroomId}/checkin/${checkinId}/students`, userId);
-        const studentSnap = await getDoc(studentRef);
-
-        if (studentSnap.exists()) {
-          const studentData = studentSnap.data();
-
-          records.push({
-            date: checkinData.date,
-            status: getStatusText(studentData.status),
-            score: studentData.score ?? 0,
-            remark: studentData.remark || "-",
-          });
-          total += studentData.score ?? 0;
-        }
-      }
-
-      setAttendanceRecords(records);
-      setTotalScore(total);
-      setLoading(false);
+        onSnapshot(studentRef, (studentSnap) => {
+          if (studentSnap.exists()) {
+            const studentData = studentSnap.data();
+  
+            // ✅ ใช้ checkinId เป็น key เพื่อป้องกัน row ซ้ำ
+            recordsMap.set(checkinId, {
+              date: checkinData.date,
+              status: getStatusText(studentData.status),
+              score: studentData.score ?? 0,
+              remark: studentData.remark || "-",
+            });
+  
+            total += studentData.score ?? 0;
+          }
+  
+          // ✅ แปลง Map กลับเป็น Array แล้วอัปเดต state
+          setAttendanceRecords(Array.from(recordsMap.values()));
+          setTotalScore(total);
+          setLoading(false);
+        });
+      });
     });
-
-    return () => unsubscribe();
   };
 
   const getStatusText = (status: number) => {

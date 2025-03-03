@@ -89,11 +89,11 @@ export default function Navbar() {
                 <p className="text-base text-gray-600 break-words">{userProfile.email}</p>
               </div>
               <Link to="/edit-profile" onClick={() => setDropdownOpen(false)} className="block px-6 py-3 hover:bg-gray-200 text-base flex items-center">
-                <img src="./edit.png" alt="edit icon" className="w-5 h-5 mr-3" />
+                <img src={`${import.meta.env.BASE_URL}edit.png`} alt="edit icon" className="w-5 h-5 mr-3" />
                 Edit Profile
               </Link>
               <button onClick={logout} className="w-full text-left px-6 py-3 hover:bg-gray-200 text-base flex items-center">
-                <img src="./exit.png" alt="exit icon" className="w-5 h-5 mr-3" />
+                <img src={`${import.meta.env.BASE_URL}exit.png`} alt="exit icon" className="w-5 h-5 mr-3" />
                 Logout
               </button>
             </div>

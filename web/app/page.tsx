@@ -176,6 +176,8 @@ export default function Home() {
             <div className="py-10 w-full flex flex-col items-center justify-center text-center">
               <h2 className="text-4xl font-semibold mb-6 text-black">Classroom X</h2>
               <h2 className="text-2xl font-medium mb-8 text-gray-700">เพราะ X เป็นได้ทุกอย่าง</h2>
+              <img src="/qrexpo.png" alt="qrexpo" className="w-20 h-20" />
+              <h3>fff</h3>
 
               {/* Google Login Button */}
               <button

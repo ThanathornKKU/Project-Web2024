@@ -101,39 +101,51 @@ export default function BarcodeScannerScreen() {
   const handleJoinClass = async () => {
     if (!user || !cid) return;
     setConfirmVisible(false);
-
+    console.log("------------1");
+    
+    
     try {
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
       const userData = userSnap.data();
-
+      console.log("------------2");
+      
       if (!userData || !userData.stdid) {
         setAlertMessage("❌ ข้อผิดพลาด\nไม่สามารถดึงข้อมูลนักเรียนได้");
         setAlertSuccess(false);
         setAlertVisible(true);
         return;
       }
-
+      console.log("------------3");
+      
       const studentRef = doc(db, `classroom/${cid}/students`, user.uid);
       const studentSnap = await getDoc(studentRef);
-
+      
+      console.log("------------4");
       if (studentSnap.exists()) {
         setAlertMessage("❌ คุณได้ลงทะเบียนในวิชานี้แล้ว!");
         setAlertSuccess(false);
         setAlertVisible(true);
         return;
       }
-
+      
+      console.log("------------5");
+      console.log("user.uid", user.uid);
+      console.log("cid", cid);
+      
+      
       await updateDoc(userRef, {
         [`classroom.${cid}`]: { status: 2 },
       });
-
+      
+      console.log("------------6");
       await setDoc(studentRef, {
         stdid: userData.stdid,
         name: userData.name,
         status: 1,
       });
-
+      
+      console.log("------------7");
       setAlertMessage("✅ ลงทะเบียนสำเร็จ!\nคุณเข้าร่วมวิชานี้เรียบร้อยแล้ว");
       setAlertSuccess(true);
       setAlertVisible(true);

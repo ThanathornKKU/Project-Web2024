@@ -106,7 +106,7 @@ export default function ClassroomPage() {
             title: "Classroom QR Code",
             html: (
                 <div className="flex justify-center">
-                    <QRCodeCanvas value={cid || ""} size={380} />
+                    <QRCodeCanvas value={"cid" + cid || ""} size={380} />
                 </div>
             ),
             showCloseButton: true,
